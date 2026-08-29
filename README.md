@@ -1,170 +1,264 @@
-# EstateHub — Real Estate Business Web Application
+# 🏡 EstateHub — Real Estate Business Platform
 
-A production-ready, modern real-estate web application for a family-owned property and land sales business. Built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Supabase-ready architecture**.
+<p align="center">
+  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js 14" /></a>
+  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Supabase-Ready-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Ready" />
+  <img src="https://img.shields.io/badge/Vercel-Deploy-black?style=for-the-badge&logo=vercel" alt="Vercel" />
+</p>
 
----
+<p align="center">
+  <a href="https://vercel.com/new/clone?repository-url=https://github.com/Monsooroffc/Estate-hub-project">
+    <img src="https://img.shields.io/badge/Deploy%20with%20Vercel-000000?style=for-the-badge&logo=vercel" alt="Deploy with Vercel" />
+  </a>
+</p>
 
-## Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Supabase Setup](#supabase-setup)
-- [Deployment](#deployment)
-- [Admin Credentials](#admin-credentials)
-- [Future AI Features](#future-ai-features)
-- [License](#license)
-
----
-
-## Features
-
-### Customer Website
-
-- **Home Page** — Hero, business intro, featured properties, categories, locations, why choose us, CTA, contact, footer
-- **Properties Listing** — Search, filters (location, type, budget, size, availability)
-- **Property Details** — Image gallery, features, map section, enquiry CTA
-- **Enquiry Form** — Validates input, associates with selected property, success feedback
-
-### Admin Dashboard
-
-- **Protected Admin Area** — Login / logout with Supabase Auth-ready architecture
-- **Dashboard** — Summary cards for properties, enquiries, leads, and follow-ups
-- **Property Management** — Add, edit, delete, change availability
-- **Enquiry Management** — View, update status, add notes, convert to lead
-- **Lead Management** — CRM-style pipeline with priority, status, notes, follow-up dates
+> **A production-ready, modern real-estate web application** for a family-owned property & land sales business — featuring a complete customer-facing website **and** a protected admin CRM dashboard in a single codebase.
 
 ---
 
-## Tech Stack
+## 📌 Overview
 
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **UI Components:** Custom component library (shadcn/ui-compatible)
-- **Auth:** Supabase Auth (mock mode included for quick testing)
-- **Database:** Supabase PostgreSQL (service layer ready)
-- **Storage:** Supabase Storage (ready for property images)
-- **Validation:** Zod
-- **Icons:** Lucide React
+EstateHub is a **one-application-two-experiences** platform:
+
+| Experience | Audience | What it delivers |
+|---|---|---|
+| 🌐 **Customer Website** | Property buyers & investors | Browse listings, filter by location/budget/size, view galleries, submit enquiries |
+| 🔐 **Admin Dashboard** (`/admin`) | Business owners | Manage properties, process enquiries, run a CRM lead pipeline from first contact to closed deal |
+
+Built with a **Supabase-first architecture**: the app runs instantly on a built-in mock data layer, then upgrades to PostgreSQL + Auth + Storage by simply adding environment variables — **no rewrites required**.
 
 ---
 
-## Project Structure
+## ✨ Features
+
+### 🌐 Customer Experience
+
+- **Home Page** — Hero section, business introduction, featured properties, property categories, location highlights, "Why Choose Us", enquiry CTA
+- **Properties Listing** — Search + filters: location, property type, min/max budget, area size, availability
+- **Property Details** — Image gallery, features list, pricing, availability status, map/location section
+- **Enquiry Form** — Zod-validated, auto-associates the selected property, success feedback
+- Fully **responsive** — mobile, tablet & desktop
+
+### 🔐 Admin Experience (Protected)
+
+- **Authentication** — Email/password login, route protection, logout (Supabase Auth-ready)
+- **Dashboard** — 7 live KPI cards: Total/Available/Sold Properties, New Enquiries, Total Leads, Hot Leads, Follow-ups Due
+- **Property Management** — Add, edit, delete, change availability, manage image galleries
+- **Enquiry Management** — View details, update status, add notes, **convert enquiry → lead** in one click
+- **Lead Management (CRM)** — Priority (HOT/WARM/COLD), 7-stage status pipeline, notes, next follow-up scheduling, search & filters
+
+---
+
+## 🔄 Application Flow
+
+The complete business lifecycle — from a visitor's first click to a closed deal:
+
+```mermaid
+flowchart TD
+    A[🏠 Home] --> B[🏘️ Properties Listing]
+    B --> C[🏢 Property Details]
+    C --> D[📝 Enquiry Form]
+    D --> E[(🗄️ Database)]
+    E --> F[🔐 Admin Login]
+    F --> G[📊 Dashboard Overview]
+    G --> H[🏘️ Property Management]
+    G --> I[📨 Enquiry Management]
+    I --> J[⭐ Convert to Lead]
+    J --> K[📅 Follow-up]
+    K --> L[🤝 Site Visit]
+    L --> M[💰 Negotiation]
+    M --> N[🏆 Deal Closed]
+```
+
+**Enquiry statuses:** `NEW → CONTACTED → FOLLOW_UP → SITE_VISIT → CLOSED`
+**Lead pipeline:** `NEW → CONTACTED → FOLLOW_UP → SITE_VISIT → NEGOTIATION → WON / LOST`
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| Framework | **Next.js 14** (App Router) | SSR, SSG, API routes, file-based routing |
+| Language | **TypeScript** | End-to-end type safety |
+| Styling | **Tailwind CSS** | Utility-first, responsive design system |
+| UI | Custom shadcn/ui-compatible components | Consistent, reusable primitives |
+| Icons | Lucide React | Modern SVG icon set |
+| Validation | **Zod** | Schema validation for every form |
+| Database | **Supabase PostgreSQL** | Managed Postgres with RLS |
+| Auth | **Supabase Auth** | Email/password admin authentication |
+| Storage | **Supabase Storage** | Property image hosting |
+| Deployment | **Vercel** | Zero-config CI/CD for Next.js |
+
+---
+
+## 📂 Project Structure
 
 ```
-real-estate-app/
-├── public/                  # Static assets
+estate-hub-project/
 ├── src/
-│   ├── app/                 # Next.js App Router pages
-│   │   ├── admin/           # Admin dashboard routes
-│   │   ├── enquiry/         # Customer enquiry page
-│   │   ├── properties/      # Property listing & detail pages
-│   │   ├── globals.css      # Global styles & CSS variables
-│   │   ├── layout.tsx       # Root layout
-│   │   └── page.tsx         # Home page
+│   ├── app/                     # Next.js App Router
+│   │   ├── page.tsx             # 🏠 Home
+│   │   ├── properties/          # 🏘️ Listing + [id] details page
+│   │   ├── enquiry/             # 📝 Enquiry form page
+│   │   └── admin/               # 🔐 Protected admin area
+│   │       ├── login/           #    Admin sign-in
+│   │       ├── page.tsx         #    Dashboard (KPI cards)
+│   │       ├── properties/      #    Property CRUD + detail view
+│   │       ├── enquiries/       #    Enquiry management + detail
+│   │       └── leads/           #    CRM: list, detail, create
 │   ├── components/
-│   │   ├── admin/           # Admin-specific components
-│   │   ├── enquiry/         # Enquiry form component
-│   │   ├── layout/          # Navbar, Footer, AdminSidebar
-│   │   ├── property/        # Property cards, filters, gallery, form
-│   │   └── ui/              # Reusable UI primitives
-│   ├── hooks/               # Custom React hooks (auth, properties)
+│   │   ├── admin/               # DashboardCard, DataTable, LeadTable, Modal…
+│   │   ├── property/            # PropertyCard, PropertyGrid, Filters, Gallery, Form
+│   │   ├── enquiry/             # EnquiryForm
+│   │   ├── layout/              # Navbar, Footer, AdminSidebar
+│   │   └── ui/                  # button, input, select, card, badge…
+│   ├── hooks/                   # useAuth, useProperties
 │   ├── lib/
-│   │   ├── ai/              # Future AI feature extension point
-│   │   ├── data/            # Data service layer (mock / Supabase)
-│   │   ├── supabase/        # Supabase client setup
-│   │   ├── utils/           # Formatting & validation helpers
-│   │   └── constants.ts     # App constants
-│   ├── types/               # TypeScript types & interfaces
-│   └── middleware.ts        # Route protection & session refresh
-├── .env.example             # Environment variable template
-├── next.config.js
-├── package.json
-├── tailwind.config.ts
-└── tsconfig.json
+│   │   ├── data/                # 🔄 Service layer: mock ↔ Supabase swap point
+│   │   ├── supabase/            # Browser/server/middleware clients
+│   │   ├── utils/               # Zod schemas, formatters
+│   │   ├── ai/                  # 🤖 Future AI extension points
+│   │   └── constants.ts         # Statuses, types, locations
+│   ├── types/                   # Central TypeScript interfaces
+│   └── middleware.ts            # Route protection & session refresh
+├── .env.example                 # Environment variable template
+└── package.json
 ```
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
-- Git
+| Requirement | Version |
+|---|---|
+| Node.js | 18+ |
+| npm | 9+ |
+| Git | latest |
 
 ### Installation
 
-1. **Clone or extract the project**
-
 ```bash
-cd real-estate-app
-```
+# 1. Clone the repository
+git clone https://github.com/Monsooroffc/Estate-hub-project.git
+cd Estate-hub-project
 
-2. **Install dependencies**
-
-```bash
+# 2. Install dependencies
 npm install
-```
 
-3. **Set up environment variables**
-
-```bash
+# 3. Configure environment (optional for demo mode — see below)
 cp .env.example .env.local
-```
 
-Edit `.env.local` with your values (see [Environment Variables](#environment-variables)).
-
-4. **Run the development server**
-
-```bash
+# 4. Start the development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open **http://localhost:3000** — the app runs immediately in **demo mode** with realistic mock data. No database required. 🎉
+
+### Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Create optimized production build |
+| `npm start` | Serve the production build |
+| `npm run lint` | Run ESLint checks |
+| `npm run typecheck` | Validate TypeScript across the project |
+
+### 🔑 Default Admin Access (Demo Mode)
+
+| Field | Value |
+|---|---|
+| **URL** | `/admin/login` |
+| **Email** | `admin@example.com` |
+| **Password** | `admin123` |
+
+> Override these via `NEXT_PUBLIC_ADMIN_EMAIL` / `NEXT_PUBLIC_ADMIN_PASSWORD` in `.env.local`. In production, replace mock auth with Supabase Auth.
 
 ---
 
-## Environment Variables
+## 🔐 Environment Variables
 
-Create a `.env.local` file in the project root:
+Create a `.env.local` file (never commit it — it's gitignored):
 
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | When connecting Supabase | Your Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | When connecting Supabase | Public (anon) key — safe for the browser |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side ops only | ⚠️ Secret — **never** expose to the client |
+| `NEXT_PUBLIC_ADMIN_EMAIL` | Optional | Demo admin email |
+| `NEXT_PUBLIC_ADMIN_PASSWORD` | Optional | Demo admin password |
 
-# Admin credentials for mock/demo mode
-NEXT_PUBLIC_ADMIN_EMAIL=admin@example.com
-NEXT_PUBLIC_ADMIN_PASSWORD=admin123
+> **Security note:** only `NEXT_PUBLIC_*` variables reach the browser. All secret keys stay server-side.
+
+---
+
+## 🗄 Database Architecture
+
+Designed for **Supabase PostgreSQL** with proper relationships and Row Level Security.
+
+```mermaid
+erDiagram
+    PROPERTIES ||--o{ PROPERTY_IMAGES : "has many"
+    PROPERTIES ||--o{ ENQUIRIES : "receives"
+    PROPERTIES ||--o{ LEADS : "generates"
+    ENQUIRIES |o--o| LEADS : "converts to"
+
+    PROPERTIES {
+        uuid id PK
+        text title
+        text description
+        text location
+        text property_type
+        bigint price
+        int area
+        text_array features
+        text status
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    PROPERTY_IMAGES {
+        uuid id PK
+        uuid property_id FK
+        text image_url
+        timestamptz created_at
+    }
+    ENQUIRIES {
+        uuid id PK
+        uuid property_id FK "nullable"
+        text name
+        text phone
+        text email
+        bigint budget
+        text message
+        text status
+        text notes
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    LEADS {
+        uuid id PK
+        uuid enquiry_id FK "nullable"
+        uuid property_id FK "nullable"
+        text name
+        text phone
+        text email
+        bigint budget
+        text priority "HOT / WARM / COLD"
+        text status "7-stage pipeline"
+        text notes
+        timestamptz next_followup
+        timestamptz created_at
+        timestamptz updated_at
+    }
 ```
 
-> **Important:** Never commit `.env.local` to Git. It is already added to `.gitignore`.
-
----
-
-## Supabase Setup
-
-### 1. Create a Supabase Project
-
-Go to [https://supabase.com](https://supabase.com) and create a new project.
-
-### 2. Get Your Credentials
-
-From your Supabase project settings, copy:
-
-- Project URL → `NEXT_PUBLIC_SUPABASE_URL`
-- Anon Public Key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- Service Role Key → `SUPABASE_SERVICE_ROLE_KEY` (server-side only)
-
-### 3. Create Database Tables
-
-Run the following SQL in the Supabase SQL Editor:
+<details>
+<summary><strong>📋 View full SQL schema (click to expand)</strong></summary>
 
 ```sql
 -- Properties table
@@ -175,8 +269,8 @@ CREATE TABLE properties (
   location TEXT NOT NULL,
   property_type TEXT NOT NULL,
   price BIGINT NOT NULL,
-  area INTEGER NOT NULL,
-  features TEXT[] DEFAULT '{}',
+  area INT NOT NULL,
+  features TEXT[],
   status TEXT NOT NULL DEFAULT 'available',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -221,13 +315,8 @@ CREATE TABLE leads (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
 
-### 4. Enable Row Level Security (RLS)
-
-Enable RLS on all tables and create policies for authenticated admin users. Example for `properties`:
-
-```sql
+-- Row Level Security example (properties)
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow public read" ON properties
@@ -238,87 +327,125 @@ CREATE POLICY "Allow admin write" ON properties
   WITH CHECK (auth.role() = 'authenticated');
 ```
 
-### 5. Switch from Mock Data to Supabase
+> Repeat the RLS pattern for `enquiries` and `leads` — public can **submit** enquiries, only **authenticated** admins can read/update.
 
-The data layer is in `src/lib/data/`. Each file contains mock implementations with comments showing the equivalent Supabase query.
-
-To connect Supabase:
-
-1. Replace the mock function bodies in `src/lib/data/properties.ts`, `enquiries.ts`, and `leads.ts` with `supabase.from(...)` calls.
-2. In `src/hooks/useAuth.ts`, uncomment the Supabase Auth sections and remove the mock login logic.
-3. In `src/middleware.ts`, uncomment the server-side auth check for `/admin/*` routes.
+</details>
 
 ---
 
-## Deployment
+## 🔌 Connecting Supabase
 
-### Deploy to Vercel
+The app ships with a **drop-in data service layer** — swapping mock data for a live database takes ~15 minutes:
 
-1. Push your code to GitHub:
+| Step | Action |
+|---|---|
+| **1** | Create a project at [supabase.com](https://supabase.com) |
+| **2** | Open **SQL Editor** and run the schema above |
+| **3** | Copy your project URL + anon key into `.env.local` |
+| **4** | In `src/lib/data/`, replace mock function bodies with `supabase.from(...)` calls (equivalent queries are commented inline in every function) |
+| **5** | In `src/hooks/useAuth.ts` and `src/middleware.ts`, uncomment the Supabase Auth blocks for real authentication |
 
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/real-estate-app.git
-git push -u origin main
+---
+
+## 🏗 Architecture & Code Quality
+
+The codebase follows a strict separation of concerns so every layer can evolve independently:
+
+```
+UI Components (src/components)
+        ↓ renders
+Pages / Routes (src/app)
+        ↓ calls
+Custom Hooks (src/hooks)          ← client-side state & data fetching
+        ↓ calls
+Data Service Layer (src/lib/data) ← 🔄 single swap point: mock ↔ Supabase
+        ↓
+Types & Validation (src/types, src/lib/utils)
 ```
 
-2. Import the project in [Vercel](https://vercel.com).
-3. Add the environment variables from `.env.local` in the Vercel dashboard.
-4. Deploy.
+**Principles enforced throughout:**
 
-### Build Locally
+- ✅ **No business logic in components** — UI stays presentational
+- ✅ **No hard-coded data** — all data flows through the service layer
+- ✅ **Validated forms** — every input guarded by a Zod schema
+- ✅ **Reusable components** — DataTable, Modal, StatusBadge, PropertyCard, etc.
+- ✅ **Organized types** — single source of truth in `src/types`
+- ✅ **Secret hygiene** — credentials only via environment variables
+
+---
+
+## 🤖 AI-Ready Architecture
+
+AI features are **intentionally not implemented** in v1 — but clean extension points already exist in `src/lib/ai/`, so they can be added without refactoring:
+
+| Future Module | File Hook | What it will do |
+|---|---|---|
+| AI Lead Scoring | `scoring.ts` | Rank leads by conversion likelihood |
+| Property Recommendations | `recommendations.ts` | Match enquiries to best-fit listings |
+| Customer Chatbot | `chatbot.ts` | Answer buyer questions 24/7 |
+| Enquiry Summarization | `summarizer.ts` | Condense long enquiries for quick review |
+| Follow-up Suggestions | `followups.ts` | Recommend optimal follow-up timing & templates |
+| Marketing Content Generation | `marketing.ts` | Auto-generate listing descriptions & posts |
+
+---
+
+## 🚢 Deployment
+
+### Deploy to Vercel (recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Monsooroffc/Estate-hub-project)
+
+**Manual steps:**
+
+1. Push your code to GitHub (done ✅ — this repo)
+2. Import the project at [vercel.com/new](https://vercel.com/new)
+3. Vercel auto-detects Next.js — click **Deploy**
+4. (After connecting Supabase) add environment variables in **Settings → Environment Variables**, then redeploy
+
+### Verify a production build locally
 
 ```bash
 npm run build
+npm start
 ```
 
 ---
 
-## Admin Credentials
+## 🗺 Roadmap
 
-For local development and demo purposes, the default admin credentials are:
-
-- **Email:** `admin@example.com`
-- **Password:** `admin123`
-
-You can change these in `.env.local`:
-
-```env
-NEXT_PUBLIC_ADMIN_EMAIL=your-admin@example.com
-NEXT_PUBLIC_ADMIN_PASSWORD=your-secure-password
-```
-
-> In production, switch to Supabase Auth and remove these mock credentials.
+- [x] Customer website — listing, filtering, details, enquiry
+- [x] Admin dashboard — properties, enquiries, lead CRM
+- [x] Enquiry → Lead conversion
+- [x] Follow-up scheduling & reminders (due counter)
+- [ ] Supabase production connection (schema ready — see guide above)
+- [ ] Supabase Storage image uploads
+- [ ] WhatsApp / email notifications on new enquiries
+- [ ] AI modules (see AI-Ready Architecture)
 
 ---
 
-## Future AI Features
+## 📄 License
 
-The application is structured to easily add AI capabilities later:
-
-- AI Lead Scoring
-- AI Property Recommendations
-- AI Customer Chatbot
-- AI Enquiry Summarization
-- AI Follow-up Suggestions
-- AI Marketing Content Generation
-
-See `src/lib/ai/README.md` for the planned extension pattern.
+This project is provided as a starter template for your real-estate business. Modify and use it as needed.
 
 ---
 
-## License
+## 🙌 Support
 
-This project is provided as a starter template for your real estate business. Modify and use it as needed.
+Built with ❤️ for a family-owned property & land sales business.
+
+**Useful resources:**
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Vercel Documentation](https://vercel.com/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 
 ---
 
-## Support
+<p align="center">
+  <sub>🏡 EstateHub — from first enquiry to closed deal.</sub>
+</p>
 
-For questions or customizations, refer to the Next.js and Supabase documentation:
 
-- [Next.js Docs](https://nextjs.org/docs)
-- [Supabase Docs](https://supabase.com/docs)
+
