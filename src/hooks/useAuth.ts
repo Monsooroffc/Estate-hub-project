@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { User } from '@/types'
 
-const MOCK_ADMIN: User = { id: 'mock-admin-1', email: 'monsoor.official876@gmail.com', role: 'admin' }
+const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@rrrhousing.in').trim().toLowerCase()
+const MOCK_ADMIN: User = { id: 'mock-admin-1', email: ADMIN_EMAIL, role: 'admin' }
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -54,8 +55,8 @@ export function useAuth() {
     // router.refresh(); return {}
 
     // --- Mock version ---
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'monsoor.official876@gmail.com'
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'M7_Monsoor@123'
+    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@rrrhousing.in').trim().toLowerCase()
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
     if (email.trim().toLowerCase() === adminEmail.trim().toLowerCase() && password === adminPassword) {
       localStorage.setItem('rrr_housing_admin_session', JSON.stringify({ email: adminEmail }))
       setUser(MOCK_ADMIN)

@@ -176,10 +176,10 @@ Open **http://localhost:3000** — the app runs immediately in **demo mode** wit
 | Field | Value |
 |---|---|
 | **URL** | `/admin/login` |
-| **Email** | `monsoor.official876@gmail.com` |
-| **Password** | `M7_Monsoor@123` |
+| **Email** | `admin@rrrhousing.in` (demo default) |
+| **Password** | `admin123` (demo default) |
 
-> Override these via `NEXT_PUBLIC_ADMIN_EMAIL` / `NEXT_PUBLIC_ADMIN_PASSWORD` in `.env.local` (already created and gitignored). In production, replace mock auth with Supabase Auth.
+> Set your real credentials via `NEXT_PUBLIC_ADMIN_EMAIL` / `NEXT_PUBLIC_ADMIN_PASSWORD` in `.env.local` (gitignored — never committed). Real credentials are not stored anywhere in the repository. In production, replace mock auth with Supabase Auth.
 
 ---
 
