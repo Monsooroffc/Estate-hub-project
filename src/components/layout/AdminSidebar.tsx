@@ -30,7 +30,7 @@ export default function AdminSidebar() {
       <aside className={cn('fixed inset-y-0 left-0 z-40 w-64 transform border-r bg-slate-900 text-white transition-transform duration-200 lg:translate-x-0', mobileOpen ? 'translate-x-0' : '-translate-x-full')}>
         <div className="flex h-full flex-col">
           <div className="flex h-14 items-center border-b border-slate-800 px-4">
-            <span className="text-lg font-bold">EstateHub Admin</span>
+            <span className="text-lg font-bold">RRR Housing Admin</span>
           </div>
           <nav className="flex-1 space-y-1 px-3 py-4">
             {adminLinks.map((link) => {

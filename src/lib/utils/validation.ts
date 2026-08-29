@@ -22,7 +22,8 @@ export const propertySchema = z.object({
     val.split(',').map((f) => f.trim()).filter(Boolean)
   ),
   status: z.enum(['available', 'sold', 'reserved']),
-  images: z.string().optional(), // comma-separated image URLs (Supabase Storage-ready)
+  images: z.string().optional(), // comma-separated image URLs (uploaded or pasted)
+  videos: z.string().optional(), // comma-separated video URLs (uploaded or pasted)
 })
 
 export type PropertyFormData = z.infer<typeof propertySchema>

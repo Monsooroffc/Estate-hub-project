@@ -1,4 +1,4 @@
-# 🏡 EstateHub — Real Estate Business Platform
+# 🏡 RRR Housing — Real Estate Business Platform
 
 <p align="center">
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js 14" /></a>
@@ -16,11 +16,13 @@
 
 > **A production-ready, modern real-estate web application** for a family-owned property & land sales business — featuring a complete customer-facing website **and** a protected admin CRM dashboard in a single codebase.
 
+> 🏢 **RRR Housing (Real Rise Resource)** — *Faith | Integrity | Truth* · RERA approved · DTCP & CMDA approved plots, flats & villas · ISO 27001:2013 certified · Porur, Chennai
+
 ---
 
 ## 📌 Overview
 
-EstateHub is a **one-application-two-experiences** platform:
+RRR Housing is a **one-application-two-experiences** platform:
 
 | Experience | Audience | What it delivers |
 |---|---|---|
@@ -174,10 +176,10 @@ Open **http://localhost:3000** — the app runs immediately in **demo mode** wit
 | Field | Value |
 |---|---|
 | **URL** | `/admin/login` |
-| **Email** | `admin@example.com` |
-| **Password** | `admin123` |
+| **Email** | `monsoor.official876@gmail.com` |
+| **Password** | `M7_Monsoor@123` |
 
-> Override these via `NEXT_PUBLIC_ADMIN_EMAIL` / `NEXT_PUBLIC_ADMIN_PASSWORD` in `.env.local`. In production, replace mock auth with Supabase Auth.
+> Override these via `NEXT_PUBLIC_ADMIN_EMAIL` / `NEXT_PUBLIC_ADMIN_PASSWORD` in `.env.local` (already created and gitignored). In production, replace mock auth with Supabase Auth.
 
 ---
 
@@ -432,7 +434,10 @@ This project is provided as a starter template for your real-estate business. Mo
 
 ## 🙌 Support
 
-Built with ❤️ for a family-owned property & land sales business.
+Built with ❤️ for **RRR Housing (Real Rise Resource)** — *Faith | Integrity | Truth*.
+
+**📍 RRR Housing** · No.100/5, 2nd Floor, Lakshmi Nagar, 1st Main Road, Porur, Chennai - 600116
+**📞** +91 99627 82486 · **✉️** abithabegum52143@gmail.com
 
 **Useful resources:**
 
@@ -444,7 +449,7 @@ Built with ❤️ for a family-owned property & land sales business.
 ---
 
 <p align="center">
-  <sub>🏡 EstateHub — from first enquiry to closed deal.</sub>
+  <sub>🏡 RRR Housing — from first enquiry to closed deal.</sub>
 </p>
 
 

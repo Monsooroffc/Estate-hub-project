@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X, Home, Building2, Phone, Shield } from 'lucide-react'
 import { APP_NAME } from '@/lib/constants'
 import { cn } from '@/lib/utils/format'
+import { Button } from '@/components/ui/button'
 
 const navLinks = [
   { href: '/', label: 'Home', icon: Home },
@@ -21,7 +22,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <Building2 className="h-6 w-6 text-primary" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-xs font-black tracking-tight text-primary-foreground">RRR</span>
           <span className="text-xl font-bold tracking-tight">{APP_NAME}</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
@@ -32,6 +33,9 @@ export default function Navbar() {
           ))}
           <Link href="/admin/login" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             <Shield className="h-4 w-4" /> Admin
+          </Link>
+          <Link href="/enquiry">
+            <Button size="sm" className="ml-1">Enquire Now</Button>
           </Link>
         </nav>
         <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">

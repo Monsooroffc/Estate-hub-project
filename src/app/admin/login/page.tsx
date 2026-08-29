@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Building2, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -30,8 +30,8 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2">
-            <Building2 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">EstateHub</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-xs font-black tracking-tight text-primary-foreground">RRR</span>
+            <span className="text-2xl font-bold">RRR Housing</span>
           </Link>
           <h1 className="mt-6 text-2xl font-bold tracking-tight">Admin Login</h1>
           <p className="mt-2 text-sm text-muted-foreground">Sign in to access the admin dashboard.</p>
@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border bg-white p-6 shadow-sm">
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@example.com" required />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="monsoor.official876@gmail.com" required />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>

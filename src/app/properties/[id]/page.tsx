@@ -19,7 +19,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PropertyDetailPageProps): Promise<Metadata> {
   const property = await getPropertyById(params.id)
-  return { title: property ? `${property.title} — EstateHub` : 'Property — EstateHub', description: property?.description || 'View property details on EstateHub' }
+  return { title: property ? `${property.title} — RRR Housing` : 'Property — RRR Housing', description: property?.description || 'View property details on RRR Housing' }
 }
 
 export default async function PropertyDetailPage({ params }: PropertyDetailPageProps) {
@@ -34,7 +34,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
         <Link href="/properties" className="hover:text-primary">Properties</Link><span>/</span><span className="text-foreground">{property.title}</span>
       </div>
       <div className="grid gap-10 lg:grid-cols-2">
-        <PropertyGallery images={property.images || []} title={property.title} />
+        <PropertyGallery images={property.images || []} videos={property.videos || []} title={property.title} />
         <div className="space-y-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">

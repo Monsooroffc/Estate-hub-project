@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import MediaUploader from '@/components/property/MediaUploader'
 
 interface PropertyFormProps {
   property?: Property
@@ -16,18 +17,21 @@ interface PropertyFormProps {
   onCancel: () => void
 }
 
+const splitList = (value?: string) => (value || '').split(',').map((s) => s.trim()).filter(Boolean)
+
 export default function PropertyForm({ property, onSubmit, onCancel }: PropertyFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
     title: property?.title || '',
     description: property?.description || '',
     location: property?.location || '',
-    property_type: property?.property_type || 'residential',
+    property_type: property?.property_type || 'land',
     price: property?.price || 0,
     area: property?.area || 0,
     features: property?.features?.join(', ') || '',
     status: property?.status || 'available',
     images: property?.images?.map((img) => img.image_url).join(', ') || '',
+    videos: property?.videos?.map((v) => v.video_url).join(', ') || '',
   })
 
   const handleChange = (field: string, value: string | number) => {
@@ -49,17 +53,20 @@ export default function PropertyForm({ property, onSubmit, onCancel }: PropertyF
     onSubmit(result.data)
   }
 
+  const setImages = (urls: string[]) => handleChange('images', urls.join(', '))
+  const setVideos = (urls: string[]) => handleChange('videos', urls.join(', '))
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="title">Title</Label>
-          <Input id="title" value={formData.title} onChange={(e) => handleChange('title', e.target.value)} />
+          <Input id="title" value={formData.title} onChange={(e) => handleChange('title', e.target.value)} placeholder="e.g. 3 acre DTCP approved land in Porur" />
           {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="location">Location</Label>
-          <Input id="location" value={formData.location} onChange={(e) => handleChange('location', e.target.value)} />
+          <Input id="location" value={formData.location} onChange={(e) => handleChange('location', e.target.value)} placeholder="e.g. Porur" />
           {errors.location && <p className="text-xs text-red-500">{errors.location}</p>}
         </div>
         <div className="space-y-1.5">
@@ -76,34 +83,41 @@ export default function PropertyForm({ property, onSubmit, onCancel }: PropertyF
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="price">Price</Label>
-          <Input id="price" type="number" value={formData.price || ''} onChange={(e) => handleChange('price', Number(e.target.value))} />
+          <Input id="price" type="number" value={formData.price || ''} onChange={(e) => handleChange('price', Number(e.target.value))} placeholder="e.g. 2500000" />
           {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="area">Area (sq.ft)</Label>
-          <Input id="area" type="number" value={formData.area || ''} onChange={(e) => handleChange('area', Number(e.target.value))} />
+          <Input id="area" type="number" value={formData.area || ''} onChange={(e) => handleChange('area', Number(e.target.value))} placeholder="e.g. 43560" />
           {errors.area && <p className="text-xs text-red-500">{errors.area}</p>}
         </div>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="features">Features (comma separated)</Label>
-        <Input id="features" value={formData.features} onChange={(e) => handleChange('features', e.target.value)} placeholder="e.g. 3 BHK, Garden, Parking" />
+        <Input id="features" value={formData.features} onChange={(e) => handleChange('features', e.target.value)} placeholder="e.g. DTCP Approved, Corner Plot, Road Access, Clear Title" />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="description">Description</Label>
         <Textarea id="description" rows={4} value={formData.description} onChange={(e) => handleChange('description', e.target.value)} />
         {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="images">Image URLs (comma separated)</Label>
-        <Textarea
-          id="images"
-          rows={2}
-          value={formData.images}
-          onChange={(e) => handleChange('images', e.target.value)}
-          placeholder="https://images.unsplash.com/photo-..., https://images.unsplash.com/photo-..."
+      <div className="border-t pt-4">
+        <MediaUploader
+          accept="image/*"
+          label="Site / Land Photos"
+          value={splitList(formData.images)}
+          onChange={setImages}
+          hint="Upload photos of the site, land, entrance road, or nearby landmarks. You can add multiple."
         />
-        <p className="text-xs text-muted-foreground">Paste image URLs here. Once Supabase Storage is connected, these will be uploaded files.</p>
+      </div>
+      <div className="border-t pt-4">
+        <MediaUploader
+          accept="video/*"
+          label="Site / Land Videos"
+          value={splitList(formData.videos)}
+          onChange={setVideos}
+          hint="Upload walkthrough or drone videos of the land (MP4/WebM). You can add multiple."
+        />
       </div>
       <div className="flex gap-3 pt-2">
         <Button type="submit">{property ? 'Update Property' : 'Add Property'}</Button>

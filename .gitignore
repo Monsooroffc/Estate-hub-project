@@ -36,3 +36,11 @@ next-env.d.ts
 
 # Project archives (source kept in git, not zips)
 real-estate-app.zip
+
+# User-uploaded media (images & videos)
+/public/uploads/
+
+# Local dev server logs & build output
+dev-out.txt
+dev-err.txt
+build-output.txt

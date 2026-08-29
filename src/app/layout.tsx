@@ -7,8 +7,8 @@ import Footer from '@/components/layout/Footer'
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
-  title: 'EstateHub — Trusted Property & Land Sales',
-  description: 'Discover premium properties, residential plots, commercial spaces, and villas with EstateHub.',
+  title: 'RRR Housing — Plots, Flats & Villas in Chennai',
+  description: 'RRR Housing (Real Rise Resource) — RERA approved, DTCP & CMDA approved plots, flats & villas in Chennai. ISO 27001:2013 certified. Faith | Integrity | Truth.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

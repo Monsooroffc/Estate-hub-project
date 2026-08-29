@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Plus, Pencil, Trash2, Search } from 'lucide-react'
-import { Property, PropertyImage } from '@/types'
+import { Property, PropertyImage, PropertyVideo } from '@/types'
 import { PropertyFormData } from '@/lib/utils/validation'
 import { getProperties, deleteProperty, createProperty, updateProperty } from '@/lib/data/properties'
 import { formatPrice, formatArea, formatDate } from '@/lib/utils/format'
@@ -40,9 +40,10 @@ export default function AdminPropertiesPage() {
   const handleAdd = () => { setEditingProperty(undefined); setModalOpen(true) }
 
   const handleFormSubmit = async (data: PropertyFormData) => {
-    // Convert comma-separated image URLs into PropertyImage[] (Supabase Storage-ready shape).
-    const { images, ...propertyData } = data
+    // Convert comma-separated URLs into PropertyImage[] / PropertyVideo[] (storage-ready shape).
+    const { images, videos, ...propertyData } = data
     const imageUrls = (images || '').split(',').map((url) => url.trim()).filter(Boolean)
+    const videoUrls = (videos || '').split(',').map((url) => url.trim()).filter(Boolean)
     const propertyImages: PropertyImage[] = imageUrls.map((url, index) => {
       // Preserve existing image ids when the URL is unchanged (safe for future Supabase rows).
       const existing = editingProperty?.images?.find((img) => img.image_url === url)
@@ -55,8 +56,19 @@ export default function AdminPropertiesPage() {
         }
       )
     })
-    if (editingProperty) await updateProperty(editingProperty.id, { ...propertyData, images: propertyImages })
-    else await createProperty({ ...propertyData, images: propertyImages })
+    const propertyVideos: PropertyVideo[] = videoUrls.map((url, index) => {
+      const existing = editingProperty?.videos?.find((v) => v.video_url === url)
+      return (
+        existing || {
+          id: `vid-${Date.now()}-${index}`,
+          property_id: editingProperty?.id || '',
+          video_url: url,
+          created_at: new Date().toISOString(),
+        }
+      )
+    })
+    if (editingProperty) await updateProperty(editingProperty.id, { ...propertyData, images: propertyImages, videos: propertyVideos })
+    else await createProperty({ ...propertyData, images: propertyImages, videos: propertyVideos })
     setModalOpen(false)
     setEditingProperty(undefined)
     fetchProperties()

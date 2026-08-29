@@ -5,10 +5,13 @@ export interface Property {
   id: string; title: string; description: string; location: string
   property_type: PropertyType; price: number; area: number
   features: string[]; status: PropertyStatus
-  created_at: string; updated_at: string; images?: PropertyImage[]
+  created_at: string; updated_at: string; images?: PropertyImage[]; videos?: PropertyVideo[]
 }
 export interface PropertyImage {
   id: string; property_id: string; image_url: string; created_at: string
+}
+export interface PropertyVideo {
+  id: string; property_id: string; video_url: string; created_at: string
 }
 
 export type EnquiryStatus = 'NEW' | 'CONTACTED' | 'FOLLOW_UP' | 'SITE_VISIT' | 'CLOSED'

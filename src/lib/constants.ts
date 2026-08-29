@@ -1,12 +1,12 @@
 import { EnquiryStatus, LeadPriority, LeadStatus, PropertyStatus, PropertyType } from '@/types'
 
 export const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
-  { value: 'residential', label: 'Residential' },
-  { value: 'commercial', label: 'Commercial' },
   { value: 'land', label: 'Land' },
+  { value: 'plot', label: 'Plot' },
   { value: 'villa', label: 'Villa' },
   { value: 'apartment', label: 'Apartment' },
-  { value: 'plot', label: 'Plot' },
+  { value: 'residential', label: 'Residential' },
+  { value: 'commercial', label: 'Commercial' },
 ]
 
 export const PROPERTY_STATUS: { value: PropertyStatus; label: string }[] = [
@@ -41,14 +41,19 @@ export const LEAD_STATUSES: { value: LeadStatus; label: string }[] = [
 
 export const LOCATIONS = [
   'All Locations',
-  'Downtown',
-  'Suburb East',
-  'Suburb West',
-  'Lake View',
-  'Hill Station',
-  'Commercial District',
-  'Green Valley',
+  'Porur',
+  'Ramapuram',
+  'Mugalivakkam',
+  'Kattupakkam',
+  'Poonamallee',
+  'Maduravoyal',
+  'Anna Nagar',
+  'Siruseri',
 ]
 
-export const APP_NAME = 'EstateHub'
-export const APP_TAGLINE = 'Trusted family-owned property & land sales'
+export const APP_NAME = 'RRR Housing'
+export const APP_FULL_NAME = 'Real Rise Resource'
+export const APP_TAGLINE = 'Faith | Integrity | Truth'
+export const CONTACT_PHONE = '+91 99627 82486'
+export const CONTACT_EMAIL = 'abithabegum52143@gmail.com'
+export const CONTACT_ADDRESS = 'No.100/5, 2nd Floor, Lakshmi Nagar, 1st Main Road, Porur, Chennai - 600116'

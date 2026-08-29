@@ -45,7 +45,7 @@ export default function AdminPropertyDetailPage() {
         <h1 className="text-2xl font-bold tracking-tight">Property Details</h1>
       </div>
       <div className="grid gap-8 lg:grid-cols-2">
-        <PropertyGallery images={property.images || []} title={property.title} />
+        <PropertyGallery images={property.images || []} videos={property.videos || []} title={property.title} />
         <div className="space-y-5">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={statusVariant} className="capitalize">{property.status}</Badge>

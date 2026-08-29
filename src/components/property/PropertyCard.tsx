@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Maximize, IndianRupee } from 'lucide-react'
+import { MapPin, Maximize, IndianRupee, PlayCircle, ArrowRight } from 'lucide-react'
 import { Property } from '@/types'
 import { formatPrice, formatArea } from '@/lib/utils/format'
 import { Badge } from '@/components/ui/badge'
@@ -10,6 +10,7 @@ interface PropertyCardProps { property: Property }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
   const imageUrl = property.images?.[0]?.image_url || ''
+  const firstVideoUrl = property.videos?.[0]?.video_url || ''
   const statusVariant = property.status === 'available' ? 'success' : property.status === 'sold' ? 'destructive' : 'warning'
 
   return (
@@ -17,31 +18,52 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         {imageUrl ? (
           <Image src={imageUrl} alt={property.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+        ) : firstVideoUrl ? (
+          <video src={firstVideoUrl} muted playsInline preload="metadata" className="h-full w-full bg-slate-900 object-contain" />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground text-sm">No Image</div>
+        )}
+        {!imageUrl && firstVideoUrl && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white"><PlayCircle className="h-3.5 w-3.5" /> Video Available</span>
+          </div>
         )}
         <div className="absolute top-3 left-3"><Badge variant={statusVariant} className="capitalize">{property.status}</Badge></div>
         <div className="absolute top-3 right-3"><Badge variant="secondary" className="capitalize">{property.property_type}</Badge></div>
       </div>
       <div className="p-4 space-y-3">
-        <h3 className="text-lg font-semibold line-clamp-1">{property.title}</h3>
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4 shrink-0" />
-          <span className="line-clamp-1">{property.location}</span>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-lg font-semibold line-clamp-1">{property.title}</h3>
         </div>
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4 shrink-0 text-primary" />
+          <span className="line-clamp-1">{property.location}, Chennai</span>
+        </div>
+        {property.features.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {property.features.slice(0, 3).map((feature) => (
+              <span key={feature} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{feature}</span>
+            ))}
+            {property.features.length > 3 && (
+              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">+{property.features.length - 3} more</span>
+            )}
+          </div>
+        )}
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <Maximize className="h-4 w-4" />
             <span>{formatArea(property.area)}</span>
           </div>
-          <div className="flex items-center gap-1 font-semibold text-primary">
-            <IndianRupee className="h-4 w-4" />
+        </div>
+        <div className="flex items-center justify-between border-t pt-3">
+          <div className="flex items-center gap-1 text-xl font-bold text-primary">
+            <IndianRupee className="h-5 w-5" />
             <span>{formatPrice(property.price)}</span>
           </div>
+          <Link href={`/properties/${property.id}`}>
+            <Button size="sm" className="gap-1.5">View Details <ArrowRight className="h-3.5 w-3.5" /></Button>
+          </Link>
         </div>
-        <Link href={`/properties/${property.id}`}>
-          <Button className="w-full mt-2">View Details</Button>
-        </Link>
       </div>
     </div>
   )

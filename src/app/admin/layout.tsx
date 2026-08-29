@@ -1,19 +1,30 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import AdminSidebar from '@/components/layout/AdminSidebar'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+
+  // The login page must render standalone (no auth guard, no sidebar),
+  // otherwise it is locked behind the dashboard layout.
+  const isLoginPage = pathname === '/admin/login'
 
   useEffect(() => {
+    if (isLoginPage) return
     if (!loading && !isAuthenticated) {
       router.push('/admin/login')
     }
-  }, [loading, isAuthenticated, router])
+  }, [loading, isAuthenticated, router, isLoginPage])
+
+  // Render the login page as-is so the sign-in form is always accessible.
+  if (isLoginPage) {
+    return <>{children}</>
+  }
 
   if (loading) {
     return (

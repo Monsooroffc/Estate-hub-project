@@ -16,7 +16,7 @@ let mockEnquiries: Enquiry[] = [
   {
     id: 'enq-3', property_id: null, name: 'Amit Kumar', phone: '9988776655',
     email: 'amit@example.com', budget: 5000000,
-    message: 'Please suggest properties under 50 lakhs in Suburb East.',
+    message: 'Please suggest properties under 50 lakhs in Porur and nearby areas.',
     status: 'FOLLOW_UP', created_at: '2024-11-04T08:15:00Z', updated_at: '2024-11-05T10:30:00Z',
   },
 ]
