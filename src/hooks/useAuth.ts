@@ -47,29 +47,32 @@ export function useAuth() {
   }, [pathname])
 
     const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
-    // --- Mock version: direct credential check against env values.
-    // NEXT_PUBLIC_ vars are inlined at build time from .env.local.
-    // Your email is NOT displayed in the login page UI — the placeholder
-    // shows "Enter your email". ---
-    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || '').trim().toLowerCase()
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || ''
+    // Validate credentials via the SERVER-SIDE API route. The API route reads
+    // env vars fresh on every request (force-dynamic), so it always uses the
+    // current values from .env.local — no stale build cache issues.
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    console.log('[useAuth] login attempt for:', email.trim().toLowerCase())
-    console.log('[useAuth] admin email:', adminEmail)
-    console.log('[useAuth] match:', email.trim().toLowerCase() === adminEmail && password === adminPassword)
+      if (res.ok) {
+        const data = await res.json()
+        const adminEmail = data.email || email
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ email: adminEmail }))
+        setUser({ id: 'mock-admin-1', email: adminEmail, role: 'admin' })
+        // Hard navigation: re-boots the app fresh so the admin layout picks up
+        // the new session instead of keeping stale (logged-out) state.
+        window.location.assign('/admin')
+        return {}
+      }
 
-    if (email.trim().toLowerCase() === adminEmail && password === adminPassword) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ email: adminEmail }))
-      setUser({ id: 'mock-admin-1', email: adminEmail, role: 'admin' })
-      // Use a hard navigation here. /admin/login and /admin share the same
-      // layout, which does NOT remount on soft client-side navigation — so a
-      // soft router.push() can leave the layout with stale (logged-out) state
-      // and bounce us straight back to the login page. A full page load
-      // re-boots the app with the session already saved in localStorage.
-      window.location.assign('/admin')
-      return {}
+      const err = await res.json().catch(() => ({}))
+      return { error: err.error || 'Invalid email or password' }
+    } catch {
+      return { error: 'Network error. Please try again.' }
     }
-    return { error: 'Invalid email or password' }
   }, [])
 
   const logout = useCallback(async () => {
