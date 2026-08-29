@@ -46,7 +46,7 @@ export function useAuth() {
     checkSession()
   }, [pathname])
 
-        const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+  const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
     // --- Supabase Auth version (uncomment when ready) ---
     // const supabase = createClient()
     // const { error } = await supabase.auth.signInWithPassword({ email, password })
