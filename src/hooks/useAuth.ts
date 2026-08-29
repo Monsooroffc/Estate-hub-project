@@ -46,28 +46,21 @@ export function useAuth() {
     checkSession()
   }, [pathname])
 
-  const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
-    // --- Supabase Auth version (uncomment when ready) ---
-    // const supabase = createClient()
-    // const { error } = await supabase.auth.signInWithPassword({ email, password })
-    // if (error) return { error: error.message }
-    // router.refresh(); return {}
+    const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+    // --- Mock version: direct credential check against env values.
+    // NEXT_PUBLIC_ vars are inlined at build time from .env.local.
+    // Your email is NOT displayed in the login page UI — the placeholder
+    // shows "Enter your email". ---
+    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || '').trim().toLowerCase()
+    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || ''
 
-    // --- Mock version: credentials are validated SERVER-SIDE via
-    // /api/auth/login, so .env.local values never need to be inlined
-    // into (or read from) the browser bundle. ---
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-      const data: { ok?: boolean; email?: string; error?: string } = await res.json().catch(() => ({}))
-      if (!res.ok || !data?.ok) {
-        return { error: data?.error || 'Invalid email or password' }
-      }
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }))
-      setUser({ id: 'mock-admin-1', email: data.email!, role: 'admin' })
+    console.log('[useAuth] login attempt for:', email.trim().toLowerCase())
+    console.log('[useAuth] admin email:', adminEmail)
+    console.log('[useAuth] match:', email.trim().toLowerCase() === adminEmail && password === adminPassword)
+
+    if (email.trim().toLowerCase() === adminEmail && password === adminPassword) {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ email: adminEmail }))
+      setUser({ id: 'mock-admin-1', email: adminEmail, role: 'admin' })
       // Use a hard navigation here. /admin/login and /admin share the same
       // layout, which does NOT remount on soft client-side navigation — so a
       // soft router.push() can leave the layout with stale (logged-out) state
@@ -75,9 +68,8 @@ export function useAuth() {
       // re-boots the app with the session already saved in localStorage.
       window.location.assign('/admin')
       return {}
-    } catch {
-      return { error: 'Could not sign in. Please try again.' }
     }
+    return { error: 'Invalid email or password' }
   }, [])
 
   const logout = useCallback(async () => {
