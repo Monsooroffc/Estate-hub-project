@@ -3,8 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { User } from '@/types'
 
-const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@rrrhousing.in').trim().toLowerCase()
-const MOCK_ADMIN: User = { id: 'mock-admin-1', email: ADMIN_EMAIL, role: 'admin' }
+const SESSION_KEY = 'rrr_housing_admin_session'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -18,25 +17,25 @@ export function useAuth() {
   // layout keeps stale state (user = null) after login and bounces the
   // user back to the login page.
   useEffect(() => {
-    const checkSession = async () => {
+    const checkSession = () => {
       // --- Supabase Auth version (uncomment when ready) ---
       // const supabase = createClient()
       // const { data: { user } } = await supabase.auth.getUser()
       // if (user) setUser({ id: user.id, email: user.email!, role: 'admin' })
 
       // --- Mock version ---
-      const stored = localStorage.getItem('rrr_housing_admin_session')
+      const stored = localStorage.getItem(SESSION_KEY)
       if (stored) {
         try {
           const parsed = JSON.parse(stored)
-          if (parsed?.email === MOCK_ADMIN.email) {
-            setUser(MOCK_ADMIN)
+          if (parsed?.email) {
+            setUser({ id: 'mock-admin-1', email: parsed.email, role: 'admin' })
           } else {
-            localStorage.removeItem('rrr_housing_admin_session')
+            localStorage.removeItem(SESSION_KEY)
             setUser(null)
           }
         } catch {
-          localStorage.removeItem('rrr_housing_admin_session')
+          localStorage.removeItem(SESSION_KEY)
           setUser(null)
         }
       } else {
@@ -47,19 +46,28 @@ export function useAuth() {
     checkSession()
   }, [pathname])
 
-  const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
+        const login = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
     // --- Supabase Auth version (uncomment when ready) ---
     // const supabase = createClient()
     // const { error } = await supabase.auth.signInWithPassword({ email, password })
     // if (error) return { error: error.message }
     // router.refresh(); return {}
 
-    // --- Mock version ---
-    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@rrrhousing.in').trim().toLowerCase()
-    const adminPassword = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123').trim()
-    if (email.trim().toLowerCase() === adminEmail.toLowerCase() && password.trim() === adminPassword) {
-      localStorage.setItem('rrr_housing_admin_session', JSON.stringify({ email: adminEmail }))
-      setUser(MOCK_ADMIN)
+    // --- Mock version: credentials are validated SERVER-SIDE via
+    // /api/auth/login, so .env.local values never need to be inlined
+    // into (or read from) the browser bundle. ---
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const data: { ok?: boolean; email?: string; error?: string } = await res.json().catch(() => ({}))
+      if (!res.ok || !data?.ok) {
+        return { error: data?.error || 'Invalid email or password' }
+      }
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }))
+      setUser({ id: 'mock-admin-1', email: data.email!, role: 'admin' })
       // Use a hard navigation here. /admin/login and /admin share the same
       // layout, which does NOT remount on soft client-side navigation — so a
       // soft router.push() can leave the layout with stale (logged-out) state
@@ -67,16 +75,18 @@ export function useAuth() {
       // re-boots the app with the session already saved in localStorage.
       window.location.assign('/admin')
       return {}
+    } catch {
+      return { error: 'Could not sign in. Please try again.' }
     }
-    return { error: 'Invalid email or password' }
-  }, [router])
+  }, [])
 
   const logout = useCallback(async () => {
     // const supabase = createClient(); await supabase.auth.signOut()
-    localStorage.removeItem('rrr_housing_admin_session')
+    localStorage.removeItem(SESSION_KEY)
     setUser(null)
     router.push('/admin/login')
   }, [router])
 
   return { user, loading, login, logout, isAuthenticated: !!user }
 }
+
