@@ -56,8 +56,8 @@ export function useAuth() {
 
     // --- Mock version ---
     const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@rrrhousing.in').trim().toLowerCase()
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
-    if (email.trim().toLowerCase() === adminEmail.trim().toLowerCase() && password === adminPassword) {
+    const adminPassword = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123').trim()
+    if (email.trim().toLowerCase() === adminEmail.toLowerCase() && password.trim() === adminPassword) {
       localStorage.setItem('rrr_housing_admin_session', JSON.stringify({ email: adminEmail }))
       setUser(MOCK_ADMIN)
       // Use a hard navigation here. /admin/login and /admin share the same
