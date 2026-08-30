@@ -1,28 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-// ------------------------------------------------------------------
-// Demo/mock admin login endpoint.
-// Validates credentials against env values SERVER-SIDE, so browser
-// bundle env-inlining can never break (or leak) the login.
-// Replace with Supabase Auth in production.
-// ------------------------------------------------------------------
+// Always read env vars fresh on every request so .env.local changes apply
+// immediately in dev — never baked into a stale build.
+export const dynamic = 'force-dynamic'
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
+  let email: unknown
+  let password: unknown
+
   try {
     const body = await request.json()
-    const email = typeof body?.email === 'string' ? body.email : ''
-    const password = typeof body?.password === 'string' ? body.password : ''
-
-    const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@rrrhousing.in').trim().toLowerCase()
-    const adminPassword = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123').trim()
-
-    if (email.trim().toLowerCase() === adminEmail && password.trim() === adminPassword) {
-      return NextResponse.json({ ok: true, email: adminEmail })
-    }
-    return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+    email = body?.email
+    password = body?.password
   } catch {
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
-}
 
-export const dynamic = 'force-dynamic'
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? ''
+  const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? ''
+
+  if (!adminEmail || !adminPassword) {
+    return NextResponse.json(
+      { error: 'Admin credentials are not configured. Add NEXT_PUBLIC_ADMIN_EMAIL and NEXT_PUBLIC_ADMIN_PASSWORD to .env.local' },
+      { status: 500 }
+    )
+  }
+
+  const normalizedEmail = String(email ?? '').trim().toLowerCase()
+  const submittedPassword = String(password ?? '')
+
+  if (
+    normalizedEmail === adminEmail.trim().toLowerCase() &&
+    submittedPassword === adminPassword
+  ) {
+    return NextResponse.json({ email: adminEmail, ok: true })
+  }
+
+  return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+}
