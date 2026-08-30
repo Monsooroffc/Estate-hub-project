@@ -15,8 +15,6 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const demoEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.trim() || 'monsoor.official876@gmail.com'
-  const demoPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD?.trim() || 'M7_Monsoor@123'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,15 +49,6 @@ export default function AdminLoginPage() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-          </div>
-          <div className="rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">Admin access</p>
-            <p className="mt-0.5">
-              Email: <span className="font-mono text-primary">{demoEmail}</span>
-            </p>
-            <p className="mt-0.5">
-              Password: <span className="font-mono text-primary">{demoPassword}</span>
-            </p>
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</Button>
