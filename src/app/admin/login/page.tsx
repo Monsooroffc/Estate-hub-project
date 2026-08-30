@@ -15,7 +15,9 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const demoEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL
+  const configuredEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.trim()
+  const demoEmail = configuredEmail || 'admin@rrrhousing.in'
+  const usingFallback = !configuredEmail
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,9 +53,19 @@ export default function AdminLoginPage() {
               </button>
             </div>
           </div>
-          {demoEmail && (
+          {usingFallback ? (
+            <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <p className="font-medium">Demo admin access (no .env.local detected)</p>
+              <p className="mt-0.5">
+                Email: <span className="font-mono font-semibold">{demoEmail}</span>
+              </p>
+              <p className="mt-0.5">
+                Password: <span className="font-mono font-semibold">admin123</span>
+              </p>
+            </div>
+          ) : (
             <div className="rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Demo admin access</p>
+              <p className="font-medium text-foreground">Admin access</p>
               <p className="mt-0.5">
                 Email: <span className="font-mono text-primary">{demoEmail}</span>
                 <span className="ml-1">— password is set in <code>.env.local</code></span>
