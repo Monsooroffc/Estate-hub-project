@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { UploadCloud, X, Loader2, PlayCircle } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils/format'
+import { isSupabaseConfigured, uploadPropertyMedia, type MediaKind } from '@/lib/supabase/storage'
 
 interface MediaUploaderProps {
   accept: 'image/*' | 'video/*'
@@ -18,8 +19,33 @@ function isVideoUrl(url: string) {
   return /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url)
 }
 
+// Legacy fallback used ONLY when Supabase isn't configured (local demo mode).
+async function uploadViaApiRoute(file: File): Promise<string> {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await fetch('/api/upload', { method: 'POST', body: form })
+  let data: { url?: string; error?: string } = {}
+  try {
+    data = await res.json()
+  } catch {
+    data = {}
+  }
+  if (!res.ok || !data.url) {
+    throw new Error(
+      data.error ||
+      (res.status === 404
+        ? 'Upload endpoint not found. Restart the dev server (npm run dev) and try again.'
+        : `Upload failed (HTTP ${res.status}). Please try again.`)
+    )
+  }
+  return data.url
+}
+
 /**
- * Uploads files to /api/upload, then reports the resulting URLs back via onChange.
+ * Uploads files DIRECTLY from the browser to Supabase Storage (photos to the
+ * `property-images` bucket, videos to `property-videos`) and reports the
+ * resulting public URLs back via onChange. Large files never pass through the
+ * Next.js server, so big videos no longer fail with HTTP 413.
  * Works for both site photos (images) and site walkthrough / land videos.
  */
 export default function MediaUploader({ accept, label, hint, value, onChange }: MediaUploaderProps) {
@@ -27,6 +53,7 @@ export default function MediaUploader({ accept, label, hint, value, onChange }: 
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const isVideo = accept === 'video/*'
+  const kind: MediaKind = isVideo ? 'video' : 'image'
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
@@ -34,29 +61,18 @@ export default function MediaUploader({ accept, label, hint, value, onChange }: 
     setUploading(true)
     const urls: string[] = []
     for (const file of Array.from(files)) {
-      const form = new FormData()
-      form.append('file', file)
       try {
-        const res = await fetch('/api/upload', { method: 'POST', body: form })
-        let data: { url?: string; error?: string } = {}
-        try {
-          data = await res.json()
-        } catch {
-          // Non-JSON response (e.g. 404 HTML page when the route isn't registered).
-          data = {}
+        if (isSupabaseConfigured) {
+          // Direct browser -> Supabase Storage upload.
+          urls.push(await uploadPropertyMedia(file, kind))
+        } else {
+          // Demo mode: no Supabase env vars — use the local /api/upload route.
+          urls.push(await uploadViaApiRoute(file))
         }
-        if (!res.ok || !data.url) {
-          setError(
-            data.error ||
-            (res.status === 404
-              ? 'Upload endpoint not found. Restart the dev server (npm run dev) and try again.'
-              : `Upload failed (HTTP ${res.status}). Please try again.`)
-          )
-          continue
-        }
-        urls.push(data.url)
-      } catch {
-        setError('Upload failed. Please try again.')
+      } catch (err) {
+        const name = file.name ? ` (${file.name})` : ''
+        setError(`${err instanceof Error ? err.message : 'Upload failed. Please try again.'}${name}`)
+        break
       }
     }
     setUploading(false)
