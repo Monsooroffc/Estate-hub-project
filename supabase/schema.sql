@@ -53,6 +53,19 @@ create table if not exists public.enquiries (
 -- ---------- LEADS ----------
 create table if not exists public.leads (
   id            uuid primary key default gen_random_uuid(),
+  enquiry_id    uuid references public.enquiries(id) on delete set null,
+  property_id   uuid references public.properties(id) on delete set null,
+  name          text not null,
+  phone         text not null,
+  email         text not null,
+  budget        bigint,
+  priority      text not null default 'COLD',
+  status        text not null default 'NEW',
+  notes         text not null default '',
+  next_followup timestamptz,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
 
 -- ---------- updated_at auto-touch triggers ----------
 create or replace function public.set_updated_at()
@@ -121,16 +134,3 @@ create policy "leads_insert" on public.leads for insert with check (true);
 create policy "leads_update" on public.leads for update using (true) with check (true);
 create policy "leads_delete" on public.leads for delete using (true);
 
-  enquiry_id    uuid references public.enquiries(id) on delete set null,
-  property_id   uuid references public.properties(id) on delete set null,
-  name          text not null,
-  phone         text not null,
-  email         text not null,
-  budget        bigint,
-  priority      text not null default 'COLD',
-  status        text not null default 'NEW',
-  notes         text not null default '',
-  next_followup timestamptz,
-  created_at    timestamptz not null default now(),
-  updated_at    timestamptz not null default now()
-);
