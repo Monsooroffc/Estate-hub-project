@@ -38,9 +38,20 @@ export default function MediaUploader({ accept, label, hint, value, onChange }: 
       form.append('file', file)
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: form })
-        const data = await res.json()
+        let data: { url?: string; error?: string } = {}
+        try {
+          data = await res.json()
+        } catch {
+          // Non-JSON response (e.g. 404 HTML page when the route isn't registered).
+          data = {}
+        }
         if (!res.ok || !data.url) {
-          setError(data.error || 'Upload failed')
+          setError(
+            data.error ||
+            (res.status === 404
+              ? 'Upload endpoint not found. Restart the dev server (npm run dev) and try again.'
+              : `Upload failed (HTTP ${res.status}). Please try again.`)
+          )
           continue
         }
         urls.push(data.url)
