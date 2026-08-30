@@ -16,8 +16,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? ''
-  const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? ''
+  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '').trim()
+  const adminPassword = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? '').trim()
 
   if (!adminEmail || !adminPassword) {
     return NextResponse.json(
@@ -26,15 +26,24 @@ export async function POST(request: Request) {
     )
   }
 
-  const normalizedEmail = String(email ?? '').trim().toLowerCase()
+  const submittedEmail = String(email ?? '').trim().toLowerCase()
   const submittedPassword = String(password ?? '')
 
-  if (
-    normalizedEmail === adminEmail.trim().toLowerCase() &&
-    submittedPassword === adminPassword
-  ) {
+  if (submittedEmail === adminEmail.toLowerCase() && submittedPassword === adminPassword) {
     return NextResponse.json({ email: adminEmail, ok: true })
   }
 
-  return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+  // Fail loudly and helpfully instead of a generic message, so a credentials
+  // mismatch in .env.local vs. what was typed is immediately obvious.
+  if (submittedEmail !== adminEmail.toLowerCase()) {
+    return NextResponse.json(
+      { error: `No admin account for "${submittedEmail}". Use the configured admin email: ${adminEmail}` },
+      { status: 401 }
+    )
+  }
+
+  return NextResponse.json(
+    { error: 'Incorrect password. Check the password in .env.local and try again.' },
+    { status: 401 }
+  )
 }
