@@ -1,8 +1,31 @@
-import { Property, PropertyFilters, PropertyImage } from '@/types'
+import { Property, PropertyFilters, PropertyImage, PropertyVideo } from '@/types'
+import { getDb, isSupabaseConfigured } from '@/lib/supabase/db'
 
 // ------------------------------------------------------------------
-// MOCK DATA — Replace with Supabase queries once connected.
+// DATA LAYER — Supabase (PostgreSQL) with automatic mock fallback.
+// When Supabase env vars are missing (or a query fails), the app
+// keeps working against in-memory mock data (demo mode).
 // ------------------------------------------------------------------
+
+export type PropertyRow = {
+  id: string; title: string; description: string; location: string
+  property_type: Property['property_type']; price: number; area: number
+  features: string[] | null; status: Property['status']
+  created_at: string; updated_at: string
+  property_images?: PropertyImage[] | null
+  property_videos?: PropertyVideo[] | null
+}
+
+export function mapPropertyRow(row: PropertyRow): Property {
+  return {
+    id: row.id, title: row.title, description: row.description, location: row.location,
+    property_type: row.property_type, price: Number(row.price), area: Number(row.area),
+    features: row.features ?? [], status: row.status,
+    created_at: row.created_at, updated_at: row.updated_at,
+    images: row.property_images ?? undefined,
+    videos: row.property_videos ?? undefined,
+  }
+}
 
 const mockImages: PropertyImage[] = [
   { id: 'img-1', property_id: 'prop-1', image_url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80', created_at: new Date().toISOString() },
@@ -59,7 +82,7 @@ let mockProperties: Property[] = [
   },
 ]
 
-export async function getProperties(filters?: PropertyFilters): Promise<Property[]> {
+function filterMockProperties(filters?: PropertyFilters): Property[] {
   let result = [...mockProperties]
   if (filters?.search) {
     const term = filters.search.toLowerCase()
@@ -75,28 +98,173 @@ export async function getProperties(filters?: PropertyFilters): Promise<Property
   return result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 }
 
+export async function getProperties(filters?: PropertyFilters): Promise<Property[]> {
+  if (!isSupabaseConfigured) return filterMockProperties(filters)
+  try {
+    let query = getDb().from('properties').select('*, property_images(*), property_videos(*)')
+    if (filters?.search) {
+      const term = filters.search.replace(/[%,()]/g, '')
+      query = query.or(`title.ilike.%${term}%,location.ilike.%${term}%,property_type.ilike.%${term}%`)
+    }
+    if (filters?.location && filters.location !== 'All Locations') query = query.eq('location', filters.location)
+    if (filters?.propertyType && filters.propertyType !== 'all') query = query.eq('property_type', filters.propertyType)
+    if (filters?.minBudget) query = query.gte('price', filters.minBudget)
+    if (filters?.maxBudget) query = query.lte('price', filters.maxBudget)
+    if (filters?.minSize) query = query.gte('area', filters.minSize)
+    if (filters?.maxSize) query = query.lte('area', filters.maxSize)
+    if (filters?.availability && filters.availability !== 'all') query = query.eq('status', filters.availability)
+    const { data, error } = await query.order('created_at', { ascending: false })
+    if (error) throw error
+    return (data ?? []).map((row) => mapPropertyRow(row as PropertyRow))
+  } catch (err) {
+    console.warn('[properties] Supabase query failed — falling back to mock data:', err)
+    return filterMockProperties(filters)
+  }
+}
+
 export async function getPropertyById(id: string): Promise<Property | null> {
-  return mockProperties.find(p => p.id === id) ? { ...mockProperties.find(p => p.id === id)! } : null
+  if (!isSupabaseConfigured) {
+    const found = mockProperties.find(p => p.id === id)
+    return found ? { ...found } : null
+  }
+  try {
+    const { data, error } = await getDb()
+      .from('properties')
+      .select('*, property_images(*), property_videos(*)')
+      .eq('id', id)
+      .maybeSingle()
+    if (error) throw error
+    return data ? mapPropertyRow(data as PropertyRow) : null
+  } catch (err) {
+    console.warn('[properties] Supabase query failed — falling back to mock data:', err)
+    const found = mockProperties.find(p => p.id === id)
+    return found ? { ...found } : null
+  }
+}
+
+async function insertMedia(
+  propertyId: string,
+  items: { image_url?: string; video_url?: string; url?: string }[] | undefined,
+  table: 'property_images' | 'property_videos',
+  urlKey: 'image_url' | 'video_url'
+): Promise<PropertyImage[] | PropertyVideo[]> {
+  if (!items || items.length === 0) return []
+  const rows = items.map((item) => ({
+    property_id: propertyId,
+    [urlKey]: item[urlKey] ?? item.url ?? '',
+  }))
+  const { data, error } = await getDb().from(table).insert(rows).select()
+  if (error) throw error
+  return (data ?? []) as PropertyImage[] | PropertyVideo[]
 }
 
 export async function createProperty(data: Omit<Property, 'id' | 'created_at' | 'updated_at'>): Promise<Property> {
-  const now = new Date().toISOString()
-  const newProperty: Property = { ...data, id: `prop-${Date.now()}`, created_at: now, updated_at: now }
-  mockProperties.push(newProperty)
-  return newProperty
+  if (!isSupabaseConfigured) {
+    const now = new Date().toISOString()
+    const newProperty: Property = { ...data, id: `prop-${Date.now()}`, created_at: now, updated_at: now }
+    mockProperties.push(newProperty)
+    return newProperty
+  }
+  try {
+    const { images, videos, ...base } = data
+    const { data: row, error } = await getDb()
+      .from('properties')
+      .insert({
+        title: base.title,
+        description: base.description,
+        location: base.location,
+        property_type: base.property_type,
+        price: base.price,
+        area: base.area,
+        features: base.features ?? [],
+        status: base.status,
+      })
+      .select()
+      .single()
+    if (error) throw error
+    const propertyId = (row as PropertyRow).id
+    const savedImages = (await insertMedia(propertyId, images, 'property_images', 'image_url')) as PropertyImage[]
+    const savedVideos = (await insertMedia(propertyId, videos, 'property_videos', 'video_url')) as PropertyVideo[]
+    return { ...mapPropertyRow(row as PropertyRow), images: savedImages, videos: savedVideos }
+  } catch (err) {
+    console.warn('[properties] Supabase write failed — falling back to mock data:', err)
+    const now = new Date().toISOString()
+    const newProperty: Property = { ...data, id: `prop-${Date.now()}`, created_at: now, updated_at: now }
+    mockProperties.push(newProperty)
+    return newProperty
+  }
 }
 
 export async function updateProperty(id: string, data: Partial<Property>): Promise<Property | null> {
-  const index = mockProperties.findIndex(p => p.id === id)
-  if (index === -1) return null
-  mockProperties[index] = { ...mockProperties[index], ...data, updated_at: new Date().toISOString() }
-  return mockProperties[index]
+  if (!isSupabaseConfigured) {
+    const index = mockProperties.findIndex(p => p.id === id)
+    if (index === -1) return null
+    mockProperties[index] = { ...mockProperties[index], ...data, updated_at: new Date().toISOString() }
+    return mockProperties[index]
+  }
+  try {
+    const { images, videos, ...rest } = data
+    const patch: Record<string, unknown> = {}
+    if (rest.title !== undefined) patch.title = rest.title
+    if (rest.description !== undefined) patch.description = rest.description
+    if (rest.location !== undefined) patch.location = rest.location
+    if (rest.property_type !== undefined) patch.property_type = rest.property_type
+    if (rest.price !== undefined) patch.price = rest.price
+    if (rest.area !== undefined) patch.area = rest.area
+    if (rest.features !== undefined) patch.features = rest.features
+    if (rest.status !== undefined) patch.status = rest.status
+
+    let updated: Property | null = null
+    if (Object.keys(patch).length > 0) {
+      const { data: row, error } = await getDb()
+        .from('properties')
+        .update(patch)
+        .eq('id', id)
+        .select('*, property_images(*), property_videos(*)')
+        .maybeSingle()
+      if (error) throw error
+      updated = row ? mapPropertyRow(row as PropertyRow) : null
+    } else {
+      updated = await getPropertyById(id)
+    }
+    if (!updated) return null
+
+    if (images) {
+      const { error: delErr } = await getDb().from('property_images').delete().eq('property_id', id)
+      if (delErr) throw delErr
+      updated.images = (await insertMedia(id, images, 'property_images', 'image_url')) as PropertyImage[]
+    }
+    if (videos) {
+      const { error: delErr } = await getDb().from('property_videos').delete().eq('property_id', id)
+      if (delErr) throw delErr
+      updated.videos = (await insertMedia(id, videos, 'property_videos', 'video_url')) as PropertyVideo[]
+    }
+    return updated
+  } catch (err) {
+    console.warn('[properties] Supabase write failed — falling back to mock data:', err)
+    const index = mockProperties.findIndex(p => p.id === id)
+    if (index === -1) return null
+    mockProperties[index] = { ...mockProperties[index], ...data, updated_at: new Date().toISOString() }
+    return mockProperties[index]
+  }
 }
 
 export async function deleteProperty(id: string): Promise<boolean> {
-  const initial = mockProperties.length
-  mockProperties = mockProperties.filter(p => p.id !== id)
-  return mockProperties.length < initial
+  if (!isSupabaseConfigured) {
+    const initial = mockProperties.length
+    mockProperties = mockProperties.filter(p => p.id !== id)
+    return mockProperties.length < initial
+  }
+  try {
+    const { data, error } = await getDb().from('properties').delete().eq('id', id).select('id')
+    if (error) throw error
+    return (data ?? []).length > 0
+  } catch (err) {
+    console.warn('[properties] Supabase delete failed — falling back to mock data:', err)
+    const initial = mockProperties.length
+    mockProperties = mockProperties.filter(p => p.id !== id)
+    return mockProperties.length < initial
+  }
 }
 
 export async function getFeaturedProperties(limit = 4): Promise<Property[]> {
