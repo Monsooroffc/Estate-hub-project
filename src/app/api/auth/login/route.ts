@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server'
 
 // ------------------------------------------------------------------
-// Demo/mock admin login endpoint.
+// Admin login endpoint.
 // Reads credentials from env (NEXT_PUBLIC_ADMIN_EMAIL /
-// NEXT_PUBLIC_ADMIN_PASSWORD). If those are not configured, falls back
-// to the documented demo credentials (admin@rrrhousing.in / admin123)
-// so admin login ALWAYS works — even on a deployment where the
-// gitignored .env.local was not included.
+// NEXT_PUBLIC_ADMIN_PASSWORD). If those are not configured, the default
+// admin credentials below are used so login ALWAYS works — even on a
+// deployment where the gitignored .env.local was not included.
 // ------------------------------------------------------------------
 
-const FALLBACK_EMAIL = 'admin@rrrhousing.in'
-const FALLBACK_PASSWORD = 'admin123'
+const DEFAULT_EMAIL = 'monsoor.official876@gmail.com'
+const DEFAULT_PASSWORD = 'M7_Monsoor@123'
 
 // Always read env vars fresh on every request so .env.local changes apply
 // immediately in dev — never baked into a stale build.
@@ -28,8 +27,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '').trim() || FALLBACK_EMAIL
-  const adminPassword = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? '').trim() || FALLBACK_PASSWORD
+  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '').trim() || DEFAULT_EMAIL
+  const adminPassword = (process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? '').trim() || DEFAULT_PASSWORD
 
   const submittedEmail = String(email ?? '').trim().toLowerCase()
   const submittedPassword = String(password ?? '')
