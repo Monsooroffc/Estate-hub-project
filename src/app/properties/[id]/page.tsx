@@ -8,6 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import PropertyGallery from '@/components/property/PropertyGallery'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const dynamicParams = true
+
 interface PropertyDetailPageProps {
   params: { id: string }
 }

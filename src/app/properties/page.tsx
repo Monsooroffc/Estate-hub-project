@@ -3,6 +3,9 @@ import { getProperties } from '@/lib/data/properties'
 import PropertyGrid from '@/components/property/PropertyGrid'
 import PropertyFiltersClient from '@/components/property/PropertyFiltersClient'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Properties — RRR Housing',
   description: 'Browse our curated collection of residential, commercial, and land properties.',

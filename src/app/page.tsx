@@ -6,6 +6,9 @@ import { APP_NAME, APP_TAGLINE, CONTACT_PHONE } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import PropertyCard from '@/components/property/PropertyCard'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function HomePage() {
   const featured = await getFeaturedProperties(4)
   const allProperties = await getProperties()
