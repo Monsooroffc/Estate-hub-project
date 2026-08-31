@@ -36,7 +36,7 @@ const mockImages: PropertyImage[] = [
   { id: 'img-6', property_id: 'prop-6', image_url: 'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=800&q=80', created_at: new Date().toISOString() },
 ]
 
-let mockProperties: Property[] = [
+const defaultMockProperties: Property[] = [
   {
     id: 'prop-1', title: 'Porur Gated Community Villa',
     description: 'A premium 4-bedroom villa in a serene gated community off Mount Poonamallee Road. Features a private garden, modular kitchen, and covered parking.',
@@ -81,6 +81,35 @@ let mockProperties: Property[] = [
     status: 'reserved', created_at: '2024-06-01T10:00:00Z', updated_at: '2024-06-01T10:00:00Z', images: [mockImages[5]],
   },
 ]
+
+const PERSISTED_PROPERTIES_KEY = 'rrr-housing-properties-v1'
+
+function loadPersistedProperties(): Property[] {
+  if (typeof window === 'undefined') return [...defaultMockProperties]
+
+  try {
+    const saved = window.localStorage.getItem(PERSISTED_PROPERTIES_KEY)
+    if (!saved) {
+      window.localStorage.setItem(PERSISTED_PROPERTIES_KEY, JSON.stringify(defaultMockProperties))
+      return [...defaultMockProperties]
+    }
+
+    const parsed = JSON.parse(saved)
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed as Property[]
+  } catch (error) {
+    console.warn('[properties] Failed to load persisted mock properties, resetting to defaults:', error)
+  }
+
+  window.localStorage.setItem(PERSISTED_PROPERTIES_KEY, JSON.stringify(defaultMockProperties))
+  return [...defaultMockProperties]
+}
+
+function persistProperties(properties: Property[]) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(PERSISTED_PROPERTIES_KEY, JSON.stringify(properties))
+}
+
+let mockProperties: Property[] = loadPersistedProperties()
 
 function filterMockProperties(filters?: PropertyFilters): Property[] {
   let result = [...mockProperties]
@@ -162,7 +191,8 @@ export async function createProperty(data: Omit<Property, 'id' | 'created_at' | 
   if (!isSupabaseConfigured) {
     const now = new Date().toISOString()
     const newProperty: Property = { ...data, id: `prop-${Date.now()}`, created_at: now, updated_at: now }
-    mockProperties.push(newProperty)
+    mockProperties = [...mockProperties, newProperty]
+    persistProperties(mockProperties)
     return newProperty
   }
   try {
@@ -190,7 +220,8 @@ export async function createProperty(data: Omit<Property, 'id' | 'created_at' | 
     console.warn('[properties] Supabase write failed — falling back to mock data:', err)
     const now = new Date().toISOString()
     const newProperty: Property = { ...data, id: `prop-${Date.now()}`, created_at: now, updated_at: now }
-    mockProperties.push(newProperty)
+    mockProperties = [...mockProperties, newProperty]
+    persistProperties(mockProperties)
     return newProperty
   }
 }
@@ -199,8 +230,10 @@ export async function updateProperty(id: string, data: Partial<Property>): Promi
   if (!isSupabaseConfigured) {
     const index = mockProperties.findIndex(p => p.id === id)
     if (index === -1) return null
-    mockProperties[index] = { ...mockProperties[index], ...data, updated_at: new Date().toISOString() }
-    return mockProperties[index]
+    const updated = { ...mockProperties[index], ...data, updated_at: new Date().toISOString() }
+    mockProperties = mockProperties.map((p) => p.id === id ? updated : p)
+    persistProperties(mockProperties)
+    return updated
   }
   try {
     const { images, videos, ...rest } = data
@@ -244,8 +277,10 @@ export async function updateProperty(id: string, data: Partial<Property>): Promi
     console.warn('[properties] Supabase write failed — falling back to mock data:', err)
     const index = mockProperties.findIndex(p => p.id === id)
     if (index === -1) return null
-    mockProperties[index] = { ...mockProperties[index], ...data, updated_at: new Date().toISOString() }
-    return mockProperties[index]
+    const updated = { ...mockProperties[index], ...data, updated_at: new Date().toISOString() }
+    mockProperties = mockProperties.map((p) => p.id === id ? updated : p)
+    persistProperties(mockProperties)
+    return updated
   }
 }
 
@@ -253,6 +288,7 @@ export async function deleteProperty(id: string): Promise<boolean> {
   if (!isSupabaseConfigured) {
     const initial = mockProperties.length
     mockProperties = mockProperties.filter(p => p.id !== id)
+    persistProperties(mockProperties)
     return mockProperties.length < initial
   }
   try {
@@ -263,6 +299,7 @@ export async function deleteProperty(id: string): Promise<boolean> {
     console.warn('[properties] Supabase delete failed — falling back to mock data:', err)
     const initial = mockProperties.length
     mockProperties = mockProperties.filter(p => p.id !== id)
+    persistProperties(mockProperties)
     return mockProperties.length < initial
   }
 }

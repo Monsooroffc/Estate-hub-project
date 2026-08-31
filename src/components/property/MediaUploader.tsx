@@ -103,7 +103,7 @@ export default function MediaUploader({ accept, label, hint, value, onChange }: 
       {error && <p className="text-xs text-red-500">{error}</p>}
       {!isSupabaseConfigured && !error && (
         <p className="text-xs text-amber-600">
-          Demo mode: Supabase credentials not detected — files are kept as temporary local previews only (they won&apos;t survive a page refresh).
+         
         </p>
       )}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
