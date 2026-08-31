@@ -419,8 +419,8 @@ npm start
 - [x] Admin dashboard — properties, enquiries, lead CRM
 - [x] Enquiry → Lead conversion
 - [x] Follow-up scheduling & reminders (due counter)
-- [ ] Supabase production connection (schema ready — see guide above)
-- [ ] Supabase Storage image uploads
+- [x] Supabase production connection (schema ready — see guide above)
+- [x] Supabase Storage image & video uploads
 - [ ] WhatsApp / email notifications on new enquiries
 - [ ] AI modules (see AI-Ready Architecture)
 
