@@ -73,7 +73,7 @@ function mapStorageError(err: { message?: string; statusCode?: string | number }
   if (/mime|file type|unsupported/i.test(msg)) {
     return `Unsupported ${kind} format for Supabase Storage. ${msg}`
   }
-  return msg || 'Upload failed. Please try again.'
+  return `${msg || 'Upload failed'} — raw Supabase error: ${err?.message || '(no message)'}${code ? ` (HTTP ${code})` : ''} [${kind}]`
 }
 
 /**
