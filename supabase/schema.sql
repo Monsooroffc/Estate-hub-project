@@ -35,6 +35,15 @@ create table if not exists public.property_videos (
   created_at  timestamptz not null default now()
 );
 
+-- ---------- SITE SETTINGS ----------
+create table if not exists public.site_settings (
+  id         uuid primary key default gen_random_uuid(),
+  key        text not null unique,
+  value      jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- ---------- ENQUIRIES ----------
 create table if not exists public.enquiries (
   id          uuid primary key default gen_random_uuid(),
@@ -84,6 +93,10 @@ drop trigger if exists trg_enquiries_updated on public.enquiries;
 create trigger trg_enquiries_updated before update on public.enquiries
   for each row execute function public.set_updated_at();
 
+drop trigger if exists trg_site_settings_updated on public.site_settings;
+create trigger trg_site_settings_updated before update on public.site_settings
+  for each row execute function public.set_updated_at();
+
 drop trigger if exists trg_leads_updated on public.leads;
 create trigger trg_leads_updated before update on public.leads
   for each row execute function public.set_updated_at();
@@ -92,6 +105,7 @@ create trigger trg_leads_updated before update on public.leads
 create index if not exists idx_property_images_property on public.property_images(property_id);
 create index if not exists idx_property_videos_property on public.property_videos(property_id);
 create index if not exists idx_enquiries_property      on public.enquiries(property_id);
+create index if not exists idx_site_settings_key       on public.site_settings(key);
 create index if not exists idx_leads_property          on public.leads(property_id);
 create index if not exists idx_leads_enquiry           on public.leads(enquiry_id);
 
@@ -106,6 +120,7 @@ create index if not exists idx_leads_enquiry           on public.leads(enquiry_i
 alter table public.properties      enable row level security;
 alter table public.property_images enable row level security;
 alter table public.property_videos enable row level security;
+alter table public.site_settings enable row level security;
 alter table public.enquiries       enable row level security;
 alter table public.leads           enable row level security;
 
@@ -123,6 +138,11 @@ create policy "videos_select" on public.property_videos for select using (true);
 create policy "videos_insert" on public.property_videos for insert with check (true);
 create policy "videos_update" on public.property_videos for update using (true) with check (true);
 create policy "videos_delete" on public.property_videos for delete using (true);
+
+create policy "site_settings_select" on public.site_settings for select using (true);
+create policy "site_settings_insert" on public.site_settings for insert with check (true);
+create policy "site_settings_update" on public.site_settings for update using (true) with check (true);
+create policy "site_settings_delete" on public.site_settings for delete using (true);
 
 create policy "enquiries_select" on public.enquiries for select using (true);
 create policy "enquiries_insert" on public.enquiries for insert with check (true);

@@ -12,6 +12,7 @@ const adminLinks = [
   { href: '/admin/properties', label: 'Properties', icon: Building2 },
   { href: '/admin/enquiries', label: 'Enquiries', icon: MessageSquare },
   { href: '/admin/leads', label: 'Leads', icon: Users },
+  { href: '/admin/site-settings', label: 'Homepage', icon: Building2 },
 ]
 
 export default function AdminSidebar() {

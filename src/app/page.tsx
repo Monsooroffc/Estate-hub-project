@@ -5,6 +5,8 @@ import { getFeaturedProperties, getLocations, getProperties } from '@/lib/data/p
 import { APP_NAME, APP_TAGLINE, CONTACT_PHONE } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import PropertyCard from '@/components/property/PropertyCard'
+import CompanyShowcase from '@/components/homepage/CompanyShowcase'
+import AboutCompanySection from '@/components/homepage/AboutCompanySection'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -24,10 +26,10 @@ export default async function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
           <div className="max-w-2xl space-y-7">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider backdrop-blur">
-              <Shield className="h-3.5 w-3.5 text-green-400" /> RERA Approved · DTCP &amp; CMDA · ISO 27001:2013
+              <Shield className="h-3.5 w-3.5 text-green-400" /> {APP_NAME} · {APP_TAGLINE}
             </span>
             <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Own a Piece of <span className="bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">Chennai&apos;s Future</span>
+              {APP_NAME === 'RRR Housing' ? 'Own a Piece of ' : ''}<span className="bg-gradient-to-r from-emerald-400 to-green-300 bg-clip-text text-transparent">Chennai&apos;s Future</span>
             </h1>
             <p className="max-w-xl text-lg text-slate-300 sm:text-xl">
               {APP_NAME} — {APP_TAGLINE}. DTCP &amp; CMDA approved plots, flats &amp; villas across Porur and West Chennai, handpicked for families and investors.
@@ -57,26 +59,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-          <div className="space-y-4">
-            <span className="inline-block rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-violet-700">About Us</span>
-            <h2 className="text-3xl font-bold tracking-tight">About {APP_NAME}</h2>
-            <p className="text-muted-foreground leading-relaxed">RRR Housing (Real Rise Resource) is a RERA-approved, ISO 27001:2013 certified real estate developer based in Porur, Chennai. We specialise in DTCP &amp; CMDA approved plots, flats &amp; villas — helping families and investors own clear-title properties with complete transparency.</p>
-            <ul className="space-y-2">
-              {['RERA approved — transparent, regulated transactions', 'DTCP & CMDA approved plots, flats & villas', 'ISO 27001:2013 certified processes', 'End-to-end assistance from enquiry to registration'].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm"><CheckCircle className="mt-0.5 h-4 w-4 text-green-600 shrink-0" />{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl">
-            <Image src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" alt="About us" fill className="object-cover" />
-            <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-xs font-semibold text-slate-800 shadow-lg backdrop-blur">
-              <Shield className="h-4 w-4 text-green-600" /> RERA · DTCP · CMDA Approved
-            </span>
-          </div>
-        </div>
-      </section>
+      <AboutCompanySection />
+
+      <CompanyShowcase />
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
