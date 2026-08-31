@@ -16,6 +16,17 @@ const supabaseAnonKey =
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 
+/**
+ * Names of the Supabase environment variables that are missing (empty array
+ * when fully configured). Used to build precise, actionable error messages.
+ */
+export function missingSupabaseEnvVars(): string[] {
+  const missing: string[] = []
+  if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL')
+  if (!supabaseAnonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY (or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)')
+  return missing
+}
+
 let dbInstance: SupabaseClient | null = null
 
 export function getDb(): SupabaseClient {

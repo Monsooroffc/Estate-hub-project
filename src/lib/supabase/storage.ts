@@ -1,4 +1,4 @@
-import { getDb, isSupabaseConfigured } from './db'
+import { getDb, isSupabaseConfigured, missingSupabaseEnvVars } from './db'
 
 // Re-export so client components only need one import.
 export { isSupabaseConfigured }
@@ -77,12 +77,45 @@ function mapStorageError(err: { message?: string; statusCode?: string | number }
 }
 
 /**
- * Uploads a file directly from the browser to Supabase Storage and
- * resolves with its public URL (which is then saved on the property record).
+ * Uploads a file to Supabase Storage and resolves with its URL (which is then
+ * saved on the property record).
+ *
+ * When Supabase credentials ARE configured: uploads directly from the browser
+ * to the `property-images` / `property-videos` bucket and returns the public
+ * URL (.jpg/.png/.webp images, .mp4/.webm/.mov videos, etc.).
+ *
+ * When Supabase credentials are NOT configured (local demo mode): returns a
+ * short-lived in-memory object URL for the file so local testing works
+ * smoothly. Mock URLs are not persisted and vanish on page refresh.
  */
 export async function uploadPropertyMedia(file: File, kind: MediaKind): Promise<string> {
+  // Sanity-check that the chosen file matches what the uploader expects
+  // (images: .jpg/.jpeg/.png/.webp/... — videos: .mp4/.webm/.mov/...).
+  const detected = detectMediaKind(file)
+  if (!detected) {
+    throw new Error(`Unsupported file "${file.name || 'unnamed'}". Please choose an image (.jpg, .png, .webp, …) or a video (.mp4, .webm, .mov, …).`)
+  }
+  if (detected !== kind) {
+    throw new Error(`Wrong file type: "${file.name || 'unnamed'}" is a ${detected}, but this uploader expects a ${kind}.`)
+  }
+
+  // ------------------------------------------------------------------
+  // LOCAL DEMO FALLBACK — no Supabase credentials in the environment.
+  // Keep the form fully usable: hand back an in-memory object URL so
+  // previews and submission work locally without any server round-trip.
+  // ------------------------------------------------------------------
   if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY in .env.local.')
+    if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+      const missing = missingSupabaseEnvVars().join(' and ')
+      console.warn(
+        `[demo mode] "${file.name}" was NOT uploaded to Supabase Storage — ${missing} missing in .env.local. ` +
+        'Using a temporary local preview URL instead (it will not survive a page refresh).'
+      )
+      return URL.createObjectURL(file)
+    }
+    throw new Error(
+      `Supabase is not configured — set ${missingSupabaseEnvVars().join(' and ')} in .env.local, then restart the dev server (npm run dev).`
+    )
   }
 
   if (file.size > (kind === 'image' ? MAX_IMAGE_SIZE : MAX_VIDEO_SIZE)) {
