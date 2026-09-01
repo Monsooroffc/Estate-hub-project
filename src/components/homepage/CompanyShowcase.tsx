@@ -9,6 +9,15 @@ import { useEffect, useState } from 'react'
 
 const fallback: HomepageSettings = getDefaultHomepageSettings()
 
+function getVideoContentType(url: string): string | undefined {
+  const value = url.toLowerCase()
+  if (value.endsWith('.webm')) return 'video/webm'
+  if (value.endsWith('.ogg') || value.endsWith('.ogv')) return 'video/ogg'
+  if (value.endsWith('.mov') || value.endsWith('.quicktime')) return 'video/quicktime'
+  if (value.endsWith('.m4v')) return 'video/x-m4v'
+  return 'video/mp4'
+}
+
 export default function CompanyShowcase() {
   const [settings, setSettings] = useState<HomepageSettings>(fallback)
 
@@ -102,11 +111,13 @@ export default function CompanyShowcase() {
             <div className="border-b px-4 py-3 font-semibold text-slate-800">Client highlight &amp; project plan</div>
             <div className="p-4">
               <video
+                key={settings.showcaseVideoUrl}
                 controls
+                preload="metadata"
                 poster={settings.showcasePosterUrl}
                 className="h-56 w-full rounded-xl object-cover"
               >
-                <source src={settings.showcaseVideoUrl} type="video/mp4" />
+                <source src={settings.showcaseVideoUrl} type={getVideoContentType(settings.showcaseVideoUrl)} />
               </video>
             </div>
           </div>
