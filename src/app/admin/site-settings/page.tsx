@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,22 +11,31 @@ import { uploadPropertyMedia } from '@/lib/supabase/storage'
 
 export default function SiteSettingsPage() {
   const [settings, setSettings] = useState<HomepageSettings>(defaultHomepageSettings)
+  const settingsRef = useRef<HomepageSettings>(defaultHomepageSettings)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState({ brandImage: false, aboutImage: false, showcaseVideo: false })
 
   useEffect(() => {
+    settingsRef.current = settings
+  }, [settings])
+
+  useEffect(() => {
     const loadSettings = async () => {
       const loaded = await loadHomepageSettingsRemote()
+      settingsRef.current = loaded
       setSettings(loaded)
     }
     loadSettings()
   }, [])
 
   const updateField = (field: keyof HomepageSettings, value: string) => {
-    setSettings((prev) => ({ ...prev, [field]: value }))
+    const nextSettings = { ...settingsRef.current, [field]: value }
+    settingsRef.current = nextSettings
+    setSettings(nextSettings)
   }
 
   const persistHomepageSettings = async (nextSettings: HomepageSettings) => {
+    settingsRef.current = nextSettings
     setSettings(nextSettings)
     saveHomepageSettings(nextSettings)
     await saveHomepageSettingsRemote(nextSettings)
@@ -39,7 +48,7 @@ export default function SiteSettingsPage() {
     setUploading((prev) => ({ ...prev, [field]: true }))
     try {
       const uploadedUrl = await uploadPropertyMedia(file, 'image')
-      const nextSettings = { ...settings, [field]: uploadedUrl }
+      const nextSettings = { ...settingsRef.current, [field]: uploadedUrl }
       await persistHomepageSettings(nextSettings)
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Image upload failed.')
@@ -56,7 +65,7 @@ export default function SiteSettingsPage() {
     setUploading((prev) => ({ ...prev, showcaseVideo: true }))
     try {
       const uploadedUrl = await uploadPropertyMedia(file, 'video')
-      const nextSettings = { ...settings, showcaseVideoUrl: uploadedUrl }
+      const nextSettings = { ...settingsRef.current, showcaseVideoUrl: uploadedUrl }
       await persistHomepageSettings(nextSettings)
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Video upload failed.')
@@ -68,12 +77,15 @@ export default function SiteSettingsPage() {
 
   const saveSettings = async () => {
     setSaving(true)
-    await saveHomepageSettingsRemote(settings)
+    const saved = await saveHomepageSettingsRemote(settingsRef.current)
+    settingsRef.current = saved
+    setSettings(saved)
     window.setTimeout(() => setSaving(false), 600)
   }
 
   const resetDefaults = async () => {
     const reset = defaultHomepageSettings
+    settingsRef.current = reset
     setSettings(reset)
     await saveHomepageSettingsRemote(reset)
   }
