@@ -1,10 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { OpenAI } from 'openai'
+import OpenAI from 'openai'
 
-// Initialize OpenAI client (server-side only)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Runtime configuration for Vercel
+export const runtime = 'nodejs'
 
 // System prompt for ABITHA BEGUM AI
 const SYSTEM_PROMPT = `You are ABITHA BEGUM AI, the official AI real-estate assistant for EstateHub.
@@ -29,47 +26,57 @@ IMPORTANT RULES:
 
 Contact info to share: EstateHub Team (customers should contact the site for phone number and details)`
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
+    // Get API key from environment (runtime only, not at build time)
+    const apiKey = process.env.OPENAI_API_KEY
+
     // Validate API key is configured
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('[Chatbot API] ❌ OPENAI_API_KEY is not configured in .env.local')
-      return NextResponse.json(
+    if (!apiKey) {
+      console.error('[Chatbot API] ❌ OPENAI_API_KEY is not configured')
+      return Response.json(
         { error: 'OpenAI API key is not configured' },
         { status: 500 }
       )
     }
 
-    if (process.env.OPENAI_API_KEY === 'sk-your-actual-key-here') {
-      console.error('[Chatbot API] ❌ OPENAI_API_KEY is still a placeholder - please add your real key')
-      return NextResponse.json(
+    if (apiKey === 'sk-your-actual-key-here') {
+      console.error('[Chatbot API] ❌ OPENAI_API_KEY is still a placeholder')
+      return Response.json(
         { error: 'OpenAI API key is not properly configured' },
         { status: 500 }
       )
     }
 
     console.log('[Chatbot API] ✅ OPENAI_API_KEY is configured')
-    console.log('[Chatbot API] Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini')
 
     // Parse request body
     const body = await request.json()
-    const { message } = body
+    const message = body?.message
 
-    console.log('[Chatbot API] Received message:', message?.substring(0, 50) + '...')
+    console.log('[Chatbot API] Received message')
 
     // Validate message exists
     if (!message || typeof message !== 'string' || message.trim() === '') {
       console.error('[Chatbot API] ❌ Message validation failed')
-      return NextResponse.json(
+      return Response.json(
         { error: 'Message is required and must be a non-empty string' },
         { status: 400 }
       )
     }
 
+    // Initialize OpenAI client (inside POST function for Vercel compatibility)
+    const client = new OpenAI({
+      apiKey,
+    })
+
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+    console.log('[Chatbot API] Using model:', model)
+
     // Call OpenAI API
     console.log('[Chatbot API] Calling OpenAI API...')
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    const response = await client.chat.completions.create({
+      model,
       messages: [
         {
           role: 'system',
@@ -91,25 +98,25 @@ export async function POST(request: NextRequest) {
 
     if (!assistantMessage) {
       console.error('[Chatbot API] ❌ No content in OpenAI response')
-      return NextResponse.json(
+      return Response.json(
         { error: 'No response from OpenAI' },
         { status: 500 }
       )
     }
 
-    console.log('[Chatbot API] Returning response')
+    console.log('[Chatbot API] ✅ Returning response to client')
 
     // Return the response (never expose API key or internal details)
-    return NextResponse.json({
+    return Response.json({
       reply: assistantMessage,
     })
   } catch (error: unknown) {
     // Log error for debugging (server-side only)
-    console.error('[Chatbot API] ❌ Error occurred:')
+    console.error('[Chatbot API] ❌ Error occurred')
 
     // Try to extract useful error info without exposing secrets
     if (error instanceof Error) {
-      console.error('[Chatbot API] Error message:', error.message)
+      console.error('[Chatbot API] Error:', error.message)
 
       // Check for specific OpenAI errors
       if (error.message.includes('401') || error.message.includes('authentication')) {
@@ -126,7 +133,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Return generic error message (never expose internal details to client)
-    return NextResponse.json(
+    return Response.json(
       {
         error:
           'Sorry, I\'m having trouble connecting right now. Please try again or contact our EstateHub team.',
