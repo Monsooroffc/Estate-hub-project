@@ -4,6 +4,7 @@ import './globals.css'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import ScrollToTop from '@/components/ui/ScrollToTop'
+import ChatBot from '@/components/chatbot/ChatBot'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1">{children}</main>
           <Footer />
           <ScrollToTop />
+          <ChatBot />
         </div>
       </body>
     </html>
