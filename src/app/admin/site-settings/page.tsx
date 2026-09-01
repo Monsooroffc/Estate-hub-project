@@ -33,8 +33,9 @@ export default function SiteSettingsPage() {
     setUploading((prev) => ({ ...prev, [field]: true }))
     try {
       const uploadedUrl = await uploadPropertyMedia(file, 'image')
-      updateField(field, uploadedUrl)
-      saveHomepageSettings({ ...settings, [field]: uploadedUrl })
+      const nextSettings = { ...settings, [field]: uploadedUrl }
+      setSettings(nextSettings)
+      await saveHomepageSettingsRemote(nextSettings)
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Image upload failed.')
     } finally {
@@ -50,8 +51,9 @@ export default function SiteSettingsPage() {
     setUploading((prev) => ({ ...prev, showcaseVideo: true }))
     try {
       const uploadedUrl = await uploadPropertyMedia(file, 'video')
-      updateField('showcaseVideoUrl', uploadedUrl)
-      saveHomepageSettings({ ...settings, showcaseVideoUrl: uploadedUrl })
+      const nextSettings = { ...settings, showcaseVideoUrl: uploadedUrl }
+      setSettings(nextSettings)
+      await saveHomepageSettingsRemote(nextSettings)
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Video upload failed.')
     } finally {
