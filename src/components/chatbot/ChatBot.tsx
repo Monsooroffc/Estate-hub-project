@@ -34,43 +34,16 @@ export default function ChatBot() {
     scrollToBottom()
   }, [messages])
 
-  const getDemoResponse = (userMessage: string): string => {
-    const message = userMessage.toLowerCase()
-
-    // Property-related queries
-    if (message.includes('price') || message.includes('cost') || message.includes('₹'))
-      return 'Our properties range from ₹24 lakhs for plots to ₹1.2 crores for premium villas. Would you like to know about specific property types or locations?'
-
-    if (message.includes('villa') || message.includes('apartment') || message.includes('plot'))
-      return 'We offer villas, apartments, plots, commercial spaces, and residential properties. All are RERA and DTCP approved. Which type interests you?'
-
-    if (message.includes('location') || message.includes('area') || message.includes('porur') || message.includes('chennai'))
-      return 'We specialize in premium locations in West Chennai including Porur, Poonamallee, and surrounding areas. Each location has unique investment benefits. Which area interests you?'
-
-    if (message.includes('contact') || message.includes('call') || message.includes('phone'))
-      return 'You can reach us at +91-XXXXXXXXXX or fill out an enquiry form on our site. Would you like to schedule a site visit?'
-
-    if (message.includes('document') || message.includes('rera') || message.includes('dtcp'))
-      return 'All our properties are RERA registered and DTCP/CMDA approved with clear titles. We handle all documentation end-to-end. Want more details?'
-
-    if (message.includes('discount') || message.includes('offer') || message.includes('deal'))
-      return 'We offer special discounts for bulk purchases and early bookings. Contact our sales team for current offers and schemes!'
-
-    if (message.includes('hi') || message.includes('hello') || message.includes('hey'))
-      return 'Hello! 👋 Welcome to EASTATE HUB. I can help you with property inquiries, location details, pricing, or schedule a site visit. What would you like to know?'
-
-    // Default response
-    return "That's a great question! For detailed information, please contact our team at +91-XXXXXXXXXX or submit an enquiry form. Would you like help with anything specific about our properties?"
-  }
-
   const handleSendMessage = async () => {
     if (!input.trim()) return
 
-    // Add user message
+    const userMessageContent = input
+
+    // Add user message to chat history
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: input,
+      content: userMessageContent,
       timestamp: new Date(),
     }
 
@@ -78,17 +51,56 @@ export default function ChatBot() {
     setInput('')
     setIsLoading(true)
 
-    // Simulate API delay
-    setTimeout(() => {
+    try {
+      // Call the chatbot API endpoint
+      const response = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessageContent,
+        }),
+      })
+
+      // Parse response
+      const data = await response.json()
+
+      // Handle error responses from API
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Failed to get response from chatbot')
+      }
+
+      // Extract the AI response
+      const assistantContent =
+        data.reply ||
+        'Sorry, I encountered an error. Please try again or contact our EstateHub team.'
+
+      // Add assistant message to chat history
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: getDemoResponse(input),
+        content: assistantContent,
         timestamp: new Date(),
       }
+
       setMessages((prev) => [...prev, assistantMessage])
+    } catch (error) {
+      // Handle network or other errors gracefully
+      console.error('Chatbot error:', error)
+
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content:
+          "Sorry, I'm having trouble connecting right now. Please try again or contact our EstateHub team.",
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 800)
+    }
   }
 
   return (
