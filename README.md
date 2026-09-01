@@ -50,6 +50,20 @@ Built with a **Supabase-first architecture**: the app runs instantly on a built-
 - **Property Management** — Add, edit, delete, change availability, manage image galleries
 - **Enquiry Management** — View details, update status, add notes, **convert enquiry → lead** in one click
 - **Lead Management (CRM)** — Priority (HOT/WARM/COLD), 7-stage status pipeline, notes, next follow-up scheduling, search & filters
+- **Homepage Media Control** — Upload/replace the brand image, about image, and showcase video from `/admin/site-settings`, then persist the public URLs to the homepage settings record in Supabase
+
+---
+
+## 🖼 Homepage Media & Persistence
+
+The homepage brand media is managed from the admin section at `/admin/site-settings`.
+
+- Brand image and about image are uploaded to the Supabase Storage bucket `property-images`
+- Showcase video is uploaded to the Supabase Storage bucket `property-videos`
+- The generated public URLs are stored in the `public.site_settings` table under the `homepage` row
+- The homepage reads those values at runtime so the latest uploaded media appears on the frontend after refresh
+
+For this to work reliably, the database must include the `public.site_settings` table with a `key` column and a JSON `value` payload. This is defined in `supabase/schema.sql`.
 
 ---
 
@@ -191,9 +205,12 @@ Create a `.env.local` file (never commit it — it's gitignored):
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | When connecting Supabase | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | When connecting Supabase | Public (anon) key — safe for the browser |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Optional compatibility alias | Alternate publishable key name used by some Supabase projects |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side ops only | ⚠️ Secret — **never** expose to the client |
 | `NEXT_PUBLIC_ADMIN_EMAIL` | Optional | Demo admin email |
 | `NEXT_PUBLIC_ADMIN_PASSWORD` | Optional | Demo admin password |
+
+> **Homepage media note:** when using the admin homepage media uploader, the project expects a `public.site_settings` table and a `homepage` row with a JSON `value` payload. Without that table, uploads may not persist after refresh.
 
 > **Security note:** only `NEXT_PUBLIC_*` variables reach the browser. All secret keys stay server-side.
 
