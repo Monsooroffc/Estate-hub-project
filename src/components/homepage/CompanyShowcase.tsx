@@ -108,7 +108,7 @@ export default function CompanyShowcase() {
 
         <div className="space-y-6">
           <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-            <div className="border-b px-4 py-3 font-semibold text-slate-800">Client highlight &amp; project plan</div>
+            <div className="border-b px-4 py-3 font-semibold text-slate-800">Client highlight & project plan</div>
             <div className="p-4">
               <video
                 key={settings.showcaseVideoUrl}

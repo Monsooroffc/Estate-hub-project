@@ -53,7 +53,8 @@ export const defaultHomepageSettings: HomepageSettings = {
     'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
   aboutImage:
     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80',
-  showcaseVideoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+  showcaseVideoUrl:
+    'https://evfzrwvonihucchakvuz.supabase.co/storage/v1/object/public/property-videos/properties/vid_20260831_182113_380-1788247893987-ptxp8i7o.mp4',
   showcasePosterUrl:
     'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
 }
