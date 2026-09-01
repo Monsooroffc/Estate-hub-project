@@ -43,7 +43,7 @@ export const defaultHomepageSettings: HomepageSettings = {
   aboutTitle: 'About RRR Housing',
   aboutDescription:
     'RRR Housing (Real Rise Resource) is a RERA-approved, ISO 27001:2013 certified real estate developer based in Porur, Chennai. We specialise in DTCP & CMDA approved plots, flats & villas — helping families and investors own clear-title properties with complete transparency.',
-  directorName: 'R.Abiha Begum',
+  directorName: 'R ABITHA BEGUM',
   directorRole: 'Director',
   phone: '+91 99627 82486',
   email: 'abithabegum52143@gmail.com',
