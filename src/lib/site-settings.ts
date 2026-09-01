@@ -86,6 +86,12 @@ export function loadHomepageSettings(): HomepageSettings {
   }
 }
 
+function isMissingRemoteSettingsTableError(error: unknown): boolean {
+  const msg = String((error as { message?: string } | null)?.message ?? '')
+  const code = String((error as { code?: string } | null)?.code ?? '')
+  return code === 'PGRST205' || code === '42P01' || /could not find the table|does not exist/i.test(msg)
+}
+
 export async function loadHomepageSettingsRemote(): Promise<HomepageSettings> {
   if (!isSupabaseConfigured) {
     return loadHomepageSettings()
@@ -102,6 +108,17 @@ export async function loadHomepageSettingsRemote(): Promise<HomepageSettings> {
       const merged = normalizeHomepageSettings(data.value as Partial<HomepageSettings>)
       saveHomepageSettings(merged)
       return merged
+    }
+
+    if (error && isMissingRemoteSettingsTableError(error)) {
+      const localSettings = loadHomepageSettings()
+      console.warn('[homepage-settings] Supabase site_settings table is missing. Keeping local homepage settings instead of overwriting them with defaults.')
+      return localSettings
+    }
+
+    const localSettings = loadHomepageSettings()
+    if (!error && !data) {
+      return localSettings
     }
 
     const defaultValue = getDefaultHomepageSettings()
@@ -133,7 +150,14 @@ export async function saveHomepageSettingsRemote(settings: HomepageSettings): Pr
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      if (isMissingRemoteSettingsTableError(error)) {
+        console.warn('[homepage-settings] site_settings table missing in Supabase. Saving locally only so the homepage does not reset on refresh.')
+        saveHomepageSettings(settings)
+        return settings
+      }
+      throw error
+    }
 
     const savedSettings = normalizeHomepageSettings((data?.value as Partial<HomepageSettings>) ?? payload)
     saveHomepageSettings(savedSettings)
