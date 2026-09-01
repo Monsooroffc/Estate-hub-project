@@ -26,6 +26,12 @@ export default function SiteSettingsPage() {
     setSettings((prev) => ({ ...prev, [field]: value }))
   }
 
+  const persistHomepageSettings = async (nextSettings: HomepageSettings) => {
+    setSettings(nextSettings)
+    saveHomepageSettings(nextSettings)
+    await saveHomepageSettingsRemote(nextSettings)
+  }
+
   const handleFileChange = async (field: 'brandImage' | 'aboutImage', event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -34,8 +40,7 @@ export default function SiteSettingsPage() {
     try {
       const uploadedUrl = await uploadPropertyMedia(file, 'image')
       const nextSettings = { ...settings, [field]: uploadedUrl }
-      setSettings(nextSettings)
-      await saveHomepageSettingsRemote(nextSettings)
+      await persistHomepageSettings(nextSettings)
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Image upload failed.')
     } finally {
@@ -52,8 +57,7 @@ export default function SiteSettingsPage() {
     try {
       const uploadedUrl = await uploadPropertyMedia(file, 'video')
       const nextSettings = { ...settings, showcaseVideoUrl: uploadedUrl }
-      setSettings(nextSettings)
-      await saveHomepageSettingsRemote(nextSettings)
+      await persistHomepageSettings(nextSettings)
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Video upload failed.')
     } finally {
