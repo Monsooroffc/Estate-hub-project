@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle, Shield, MapPin, Building2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { loadHomepageSettings, HomepageSettings, getDefaultHomepageSettings } from '@/lib/site-settings'
+import { loadHomepageSettings, loadHomepageSettingsRemote, HomepageSettings, getDefaultHomepageSettings } from '@/lib/site-settings'
 import { useEffect, useState } from 'react'
 
 const fallback: HomepageSettings = getDefaultHomepageSettings()
@@ -13,10 +13,16 @@ export default function CompanyShowcase() {
   const [settings, setSettings] = useState<HomepageSettings>(fallback)
 
   useEffect(() => {
-    const update = () => setSettings(loadHomepageSettings())
-    update()
+    const update = async () => {
+      const nextSettings = await loadHomepageSettingsRemote()
+      setSettings(nextSettings)
+    }
 
-    const handler = () => update()
+    void update()
+
+    const handler = () => {
+      void update()
+    }
     window.addEventListener('rrr-home-settings-updated', handler)
     return () => window.removeEventListener('rrr-home-settings-updated', handler)
   }, [])

@@ -3,16 +3,22 @@
 import Image from 'next/image'
 import { CheckCircle, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { HomepageSettings, getDefaultHomepageSettings, loadHomepageSettings } from '@/lib/site-settings'
+import { HomepageSettings, getDefaultHomepageSettings, loadHomepageSettingsRemote } from '@/lib/site-settings'
 
 export default function AboutCompanySection() {
   const [settings, setSettings] = useState<HomepageSettings>(getDefaultHomepageSettings())
 
   useEffect(() => {
-    const update = () => setSettings(loadHomepageSettings())
-    update()
+    const update = async () => {
+      const nextSettings = await loadHomepageSettingsRemote()
+      setSettings(nextSettings)
+    }
 
-    const handler = () => update()
+    void update()
+
+    const handler = () => {
+      void update()
+    }
     window.addEventListener('rrr-home-settings-updated', handler)
     return () => window.removeEventListener('rrr-home-settings-updated', handler)
   }, [])
