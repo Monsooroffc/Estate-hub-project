@@ -33,18 +33,33 @@ export async function POST(request: NextRequest) {
   try {
     // Validate API key is configured
     if (!process.env.OPENAI_API_KEY) {
+      console.error('[Chatbot API] ❌ OPENAI_API_KEY is not configured in .env.local')
       return NextResponse.json(
         { error: 'OpenAI API key is not configured' },
         { status: 500 }
       )
     }
 
+    if (process.env.OPENAI_API_KEY === 'sk-your-actual-key-here') {
+      console.error('[Chatbot API] ❌ OPENAI_API_KEY is still a placeholder - please add your real key')
+      return NextResponse.json(
+        { error: 'OpenAI API key is not properly configured' },
+        { status: 500 }
+      )
+    }
+
+    console.log('[Chatbot API] ✅ OPENAI_API_KEY is configured')
+    console.log('[Chatbot API] Model:', process.env.OPENAI_MODEL || 'gpt-4o-mini')
+
     // Parse request body
     const body = await request.json()
     const { message } = body
 
+    console.log('[Chatbot API] Received message:', message?.substring(0, 50) + '...')
+
     // Validate message exists
     if (!message || typeof message !== 'string' || message.trim() === '') {
+      console.error('[Chatbot API] ❌ Message validation failed')
       return NextResponse.json(
         { error: 'Message is required and must be a non-empty string' },
         { status: 400 }
@@ -52,6 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call OpenAI API
+    console.log('[Chatbot API] Calling OpenAI API...')
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
@@ -68,15 +84,20 @@ export async function POST(request: NextRequest) {
       max_tokens: 200,
     })
 
+    console.log('[Chatbot API] ✅ OpenAI response received')
+
     // Extract the response content
     const assistantMessage = response.choices[0]?.message?.content
 
     if (!assistantMessage) {
+      console.error('[Chatbot API] ❌ No content in OpenAI response')
       return NextResponse.json(
         { error: 'No response from OpenAI' },
         { status: 500 }
       )
     }
+
+    console.log('[Chatbot API] Returning response')
 
     // Return the response (never expose API key or internal details)
     return NextResponse.json({
@@ -84,7 +105,25 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: unknown) {
     // Log error for debugging (server-side only)
-    console.error('[Chatbot API Error]:', error)
+    console.error('[Chatbot API] ❌ Error occurred:')
+
+    // Try to extract useful error info without exposing secrets
+    if (error instanceof Error) {
+      console.error('[Chatbot API] Error message:', error.message)
+
+      // Check for specific OpenAI errors
+      if (error.message.includes('401') || error.message.includes('authentication')) {
+        console.error('[Chatbot API] 🔐 Authentication failed - check if OPENAI_API_KEY is valid')
+      } else if (error.message.includes('404') || error.message.includes('model')) {
+        console.error('[Chatbot API] 🤖 Model not found - check OPENAI_MODEL value')
+      } else if (error.message.includes('429')) {
+        console.error('[Chatbot API] ⏱️ Rate limited - try again in a moment')
+      } else if (error.message.includes('Network') || error.message.includes('ECONNREFUSED')) {
+        console.error('[Chatbot API] 🌐 Network error - check internet connection')
+      }
+    } else {
+      console.error('[Chatbot API] Unknown error:', error)
+    }
 
     // Return generic error message (never expose internal details to client)
     return NextResponse.json(
